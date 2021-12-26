@@ -18,8 +18,7 @@ final class CreateNewMessageViewModel: ObservableObject {
     private func fetchAllUsers() {
         FirebaseManager.shared.firestore.collection(FirebaseConstants.users)
             .getDocuments { documentsSnapshot, error in
-                if let error = error {
-                    print("Failed to fetch users: \(error)")
+                if let _ = error {
                     return
                 }
                 

@@ -12,7 +12,9 @@ import FirebaseFirestoreSwift
 
 
 struct ChatLogView: View {
-
+    
+    static let scrollToString = "Empty"
+    
     @ObservedObject var viewModel: ChatLogViewModel
     
     var body: some View {
@@ -24,8 +26,6 @@ struct ChatLogView: View {
             }
     }
     
-    static let scrollToString = "Empty"
-    
     private var messagesView: some View {
         VStack {
             ScrollView {
@@ -34,7 +34,7 @@ struct ChatLogView: View {
                         ForEach(viewModel.chatMessages) { message in
                             MessageBubbleView(message: message)
                         }
-
+                        
                         HStack{ Spacer() }
                         .id(Self.scrollToString)
                     }
@@ -91,7 +91,7 @@ struct MessageBubbleView: View {
                 HStack {
                     Spacer()
                     HStack {
-                        Text(message.text)
+                        Text(message.text ?? String())
                             .foregroundColor(.white)
                     }
                     .padding()
@@ -101,7 +101,7 @@ struct MessageBubbleView: View {
             } else {
                 HStack {
                     HStack {
-                        Text(message.text)
+                        Text(message.text ?? String())
                             .foregroundColor(.white)
                     }
                     .padding()
@@ -117,10 +117,10 @@ struct MessageBubbleView: View {
 }
 
 
-//struct ChatLogView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NavigationView {
-//            MainMessagesView()
-//        }
-//    }
-//}
+struct ChatLogView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            MainMessagesView()
+        }
+    }
+}

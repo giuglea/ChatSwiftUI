@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Firebase
 import FirebaseFirestoreSwift
 
 struct RecentMessage: Codable, Identifiable {
@@ -16,7 +15,7 @@ struct RecentMessage: Codable, Identifiable {
     let toID: String
     let fromID: String
     let email: String
-    let profileImageURL: String
+    let profileImageUrl: String
     let timeStamp: Date
     
     var timeAgo: String {

@@ -50,7 +50,6 @@ struct LogInView: View {
                             }
                             .overlay(RoundedRectangle(cornerRadius: 64)
                                         .stroke(Color(.label), lineWidth: 3))
-
                         }
                     }
                     
@@ -82,7 +81,7 @@ struct LogInView: View {
                             .cornerRadius(10)
                     }
                 }.padding()
-                  
+                
                 Text(loginStatusMeesage)
                     .foregroundColor(.red)
                 

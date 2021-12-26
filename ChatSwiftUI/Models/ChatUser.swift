@@ -8,7 +8,6 @@
 import Foundation
 
 struct ChatUser: Identifiable {
-    
     var id: String {
         return uid
     }

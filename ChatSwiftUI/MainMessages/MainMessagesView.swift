@@ -9,9 +9,11 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct MainMessagesView: View {
-
+    
     @State var shouldShowLogOutOptions = false
     @State var shouldNavigateToChatLogView = false
+    @State var shouldShowNewMessageScreen = false
+    @State var chatUser: ChatUser?
     
     @ObservedObject var viewModel = MainMessagesViewModel()
     
@@ -19,7 +21,7 @@ struct MainMessagesView: View {
     
     var body: some View {
         NavigationView {
-
+            
             VStack {
                 customNavBar
                 messagesView
@@ -32,7 +34,7 @@ struct MainMessagesView: View {
             .navigationBarHidden(true)
         }
     }
-
+    
     private var customNavBar: some View {
         HStack(spacing: 16) {
             WebImage(url: URL(string: viewModel.chatUser?.profileImageUrl ?? ""))
@@ -45,11 +47,11 @@ struct MainMessagesView: View {
                             .stroke(Color(.label), lineWidth: 1)
                 )
                 .shadow(radius: 5)
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.chatUser?.email ?? "")
                     .font(.system(size: 24, weight: .bold))
-
+                
                 HStack {
                     Circle()
                         .foregroundColor(.green)
@@ -58,9 +60,9 @@ struct MainMessagesView: View {
                         .font(.system(size: 12))
                         .foregroundColor(Color(.lightGray))
                 }
-
+                
             }
-
+            
             Spacer()
             Button {
                 shouldShowLogOutOptions.toggle()
@@ -74,7 +76,6 @@ struct MainMessagesView: View {
         .actionSheet(isPresented: $shouldShowLogOutOptions) {
             .init(title: Text("Settings"), message: Text("What do you want to do?"), buttons: [
                 .destructive(Text("Sign Out"), action: {
-                    print("handle sign out")
                     viewModel.handleSignOut()
                 }),
                 .cancel()
@@ -87,9 +88,9 @@ struct MainMessagesView: View {
                 self.viewModel.fetchRecentMessages()
             }
         }
-
+        
     }
-
+    
     private var messagesView: some View {
         List(viewModel.recentMessages) { recentMessage in
             VStack {
@@ -98,7 +99,7 @@ struct MainMessagesView: View {
                     recentMessage.toID : recentMessage.fromID
                     self.chatUser = .init(data: [
                         FirebaseConstants.email: recentMessage.email,
-                        FirebaseConstants.profileImageURL: recentMessage.profileImageURL,
+                        FirebaseConstants.profileImageURL: recentMessage.profileImageUrl,
                         FirebaseConstants.uid: uid
                     ])
                     chatLogViewModel.chatUser = self.chatUser
@@ -106,7 +107,7 @@ struct MainMessagesView: View {
                     self.shouldNavigateToChatLogView.toggle()
                 } label: {
                     HStack(spacing: 16) {
-                        WebImage(url: URL(string: recentMessage.profileImageURL))
+                        WebImage(url: URL(string: recentMessage.profileImageUrl))
                             .resizable()
                             .scaledToFill()
                             .frame(width: 64, height: 64)
@@ -141,8 +142,6 @@ struct MainMessagesView: View {
         }
     }
     
-    @State var shouldShowNewMessageScreen = false
-
     private var newMessageButton: some View {
         Button {
             shouldShowNewMessageScreen.toggle()
@@ -155,11 +154,12 @@ struct MainMessagesView: View {
             }
             .foregroundColor(.white)
             .padding(.vertical)
-                .background(Color.blue)
-                .cornerRadius(32)
-                .padding(.horizontal)
-                .shadow(radius: 15)
+            .background(Color.blue)
+            .cornerRadius(32)
+            .padding(.horizontal)
+            .shadow(radius: 15)
         }
+        .padding(.bottom)
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
             CreateNewMessageView { user in
                 self.shouldNavigateToChatLogView.toggle()
@@ -168,10 +168,8 @@ struct MainMessagesView: View {
                 self.chatLogViewModel.fetchMessages()
             }
         }
-
+        
     }
-    
-    @State var chatUser: ChatUser?
 }
 
 struct MainMessagesView_Previews: PreviewProvider {

@@ -15,6 +15,8 @@ final class MainMessagesViewModel: ObservableObject {
     @Published var isUserCunrentlyLoggedOut = false
     @Published var recentMessages: [RecentMessage] = []
     
+    private var firebaseListener: ListenerRegistration?
+    
     init() {
         DispatchQueue.main.async {
             self.isUserCunrentlyLoggedOut = FirebaseManager.shared.auth.currentUser?.uid == nil
@@ -34,15 +36,15 @@ final class MainMessagesViewModel: ObservableObject {
             .collection(FirebaseConstants.users)
             .document(uid)
             .getDocument { snapshhot, error in
-            if let error = error {
-                self.errorMessage = "Failed to fetch user: \(error)"
-                return
+                if let error = error {
+                    self.errorMessage = "Failed to fetch user: \(error)"
+                    return
+                }
+                
+                guard let data = snapshhot?.data() else { return }
+                self.chatUser = ChatUser(data: data)
+                FirebaseManager.shared.currentUser = self.chatUser
             }
-            
-            guard let data = snapshhot?.data() else { return }
-            self.chatUser = ChatUser(data: data)
-            FirebaseManager.shared.currentUser = self.chatUser
-        }
     }
     
     func handleSignOut() {
@@ -52,11 +54,9 @@ final class MainMessagesViewModel: ObservableObject {
         try? FirebaseManager.shared.auth.signOut()
     }
     
-    private var firebaseListener: ListenerRegistration?
-    
     func fetchRecentMessages() {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-
+        
         firebaseListener = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.recentMessages)
             .document(uid)
