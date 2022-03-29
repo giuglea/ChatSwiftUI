@@ -9,8 +9,6 @@ import SwiftUI
 import Firebase
 import FirebaseFirestoreSwift
 
-
-
 struct ChatLogView: View {
     
     static let scrollToString = "Empty"
@@ -82,37 +80,44 @@ struct ChatLogView: View {
 }
 
 struct MessageBubbleView: View {
-    
     let message: ChatMessage
     
     var body: some View {
         VStack {
             if message.fromID == FirebaseManager.shared.auth.currentUser? .uid {
-                HStack {
-                    Spacer()
-                    HStack {
-                        Text(message.text ?? String())
-                            .foregroundColor(.white)
-                    }
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(8)
-                }
+                fromView
             } else {
-                HStack {
-                    HStack {
-                        Text(message.text ?? String())
-                            .foregroundColor(.white)
-                    }
-                    .padding()
-                    .background(Color(.purple))
-                    .cornerRadius(8)
-                    Spacer()
-                }
+                toView
             }
         }
         .padding(.horizontal)
         .padding(.top, 8)
+    }
+    
+    private var fromView: some View {
+            HStack {
+                Spacer()
+                HStack {
+                    Text(message.text ?? String())
+                        .foregroundColor(.white)
+                }
+                .padding()
+                .background(Color.blue)
+                .cornerRadius(8)
+            }
+    }
+    
+    private var toView: some View {
+        HStack {
+            HStack {
+                Text(message.text ?? String())
+                    .foregroundColor(.white)
+            }
+            .padding()
+            .background(Color(.purple))
+            .cornerRadius(8)
+            Spacer()
+        }
     }
 }
 

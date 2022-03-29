@@ -14,7 +14,7 @@ struct CreateNewMessageView: View {
     
     @Environment(\.presentationMode) var presentationMode
     
-    @ObservedObject var viewModel = CreateNewMessageViewModel()
+    @StateObject var viewModel = CreateNewMessageViewModel()
     
     var body: some View {
         NavigationView {

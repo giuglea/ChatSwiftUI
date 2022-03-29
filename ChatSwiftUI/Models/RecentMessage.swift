@@ -10,7 +10,6 @@ import FirebaseFirestoreSwift
 
 struct RecentMessage: Codable, Identifiable {
     @DocumentID var id: String?
-    
     let text: String
     let toID: String
     let fromID: String

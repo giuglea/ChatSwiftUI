@@ -15,7 +15,7 @@ struct MainMessagesView: View {
     @State var shouldShowNewMessageScreen = false
     @State var chatUser: ChatUser?
     
-    @ObservedObject var viewModel = MainMessagesViewModel()
+    @StateObject var viewModel = MainMessagesViewModel()
     
     private var chatLogViewModel = ChatLogViewModel(chatUser: nil)
     
