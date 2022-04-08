@@ -17,78 +17,47 @@ struct MainMessagesView: View {
     
     @StateObject var viewModel = MainMessagesViewModel()
     
-    private var chatLogViewModel = ChatLogViewModel(chatUser: nil)
-    
     var body: some View {
         NavigationView {
-            
             VStack {
-                customNavBar
+                Divider()
+                    .ignoresSafeArea(.all, edges: .horizontal)
+                    .padding(.vertical, 5)
                 messagesView
                 NavigationLink("", isActive: $shouldNavigateToChatLogView) {
-                    ChatLogView(viewModel: chatLogViewModel)
+                    if let chatUser = chatUser {
+                        let chatLogViewModel = ChatLogViewModel(chatUser: chatUser)
+                        ChatLogView(viewModel: chatLogViewModel)
+                    } else {
+                        Text("Please select an user")
+                    }
                 }
             }
-            .overlay(
-                newMessageButton, alignment: .bottom)
-            .navigationBarHidden(true)
-        }
-    }
-    
-    private var customNavBar: some View {
-        HStack(spacing: 16) {
-            WebImage(url: URL(string: viewModel.chatUser?.profileImageUrl ?? ""))
-                .resizable()
-                .scaledToFill()
-                .frame(width: 50, height: 50)
-                .clipped()
-                .cornerRadius(50)
-                .overlay(RoundedRectangle(cornerRadius: 50)
-                            .stroke(Color(.label), lineWidth: 1)
-                )
-                .shadow(radius: 5)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(viewModel.chatUser?.email ?? "")
-                    .font(.system(size: 24, weight: .bold))
-                
-                HStack {
-                    Circle()
-                        .foregroundColor(.green)
-                        .frame(width: 14, height: 14)
-                    Text("online")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(.lightGray))
+            .overlay(newMessageButton, alignment: .bottom)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    CustomNavigationView(url: viewModel.chatUser?.profileImageUrl,
+                                         title: viewModel.chatUser?.email,
+                                         shouldToggleAction: $shouldShowLogOutOptions)
                 }
-                
             }
-            
-            Spacer()
-            Button {
-                shouldShowLogOutOptions.toggle()
-            } label: {
-                Image(systemName: "gear")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(Color(.label))
+            .navigationBarTitleDisplayMode(.inline)
+            .actionSheet(isPresented: $shouldShowLogOutOptions) {
+                .init(title: Text("Settings"), message: Text("What do you want to do?"), buttons: [
+                    .destructive(Text("Sign Out"), action: {
+                        viewModel.handleSignOut()
+                    }),
+                    .cancel()
+                ])
             }
-        }
-        .padding()
-        .actionSheet(isPresented: $shouldShowLogOutOptions) {
-            .init(title: Text("Settings"), message: Text("What do you want to do?"), buttons: [
-                .destructive(Text("Sign Out"), action: {
-                    viewModel.handleSignOut()
-                }),
-                .cancel()
-            ])
-        }
-        .fullScreenCover(isPresented: $viewModel.isUserCunrentlyLoggedOut) {
-            LogInView {
-                self.viewModel.isUserCunrentlyLoggedOut = false
-                self.viewModel.fetchCurrentUser()
-                self.viewModel.fetchRecentMessages()
+            .fullScreenCover(isPresented: $viewModel.isUserCunrentlyLoggedOut) {
+                LogInView {
+                    self.viewModel.isUserCunrentlyLoggedOut = false
+                    self.viewModel.fetchCurrentUser()
+                    self.viewModel.fetchRecentMessages()
+                }
             }
         }
-        
     }
     
     private var messagesView: some View {
@@ -97,23 +66,22 @@ struct MainMessagesView: View {
                 Button {
                     let uid = FirebaseManager.shared.auth.currentUser?.uid == recentMessage.fromID ?
                     recentMessage.toID : recentMessage.fromID
+
                     self.chatUser = .init(data: [
                         FirebaseConstants.email: recentMessage.email,
                         FirebaseConstants.profileImageURL: recentMessage.profileImageUrl,
                         FirebaseConstants.uid: uid
                     ])
-                    chatLogViewModel.chatUser = self.chatUser
-                    chatLogViewModel.fetchMessages()
                     self.shouldNavigateToChatLogView.toggle()
                 } label: {
                     HStack(spacing: 16) {
                         WebImage(url: URL(string: recentMessage.profileImageUrl))
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 64, height: 64)
+                            .frame(width: 45, height: 45)
                             .clipped()
-                            .cornerRadius(64)
-                            .overlay(RoundedRectangle(cornerRadius: 64).stroke(Color.init(.label), lineWidth: 1))
+                            .cornerRadius(45)
+                            .overlay(RoundedRectangle(cornerRadius: 45).stroke(Color.init(.label), lineWidth: 1))
                             .shadow(radius: 5)
                         
                         VStack(alignment: .leading) {
@@ -164,16 +132,14 @@ struct MainMessagesView: View {
             CreateNewMessageView { user in
                 self.shouldNavigateToChatLogView.toggle()
                 self.chatUser = user
-                self.chatLogViewModel.chatUser = user
-                self.chatLogViewModel.fetchMessages()
             }
         }
         
     }
 }
 
-struct MainMessagesView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainMessagesView()
-    }
-}
+//struct MainMessagesView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MainMessagesView()
+//    }
+//}

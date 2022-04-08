@@ -7,21 +7,35 @@
 
 import SwiftUI
 import Firebase
+import SDWebImageSwiftUI
 import FirebaseFirestoreSwift
 
 struct ChatLogView: View {
     
     static let scrollToString = "Empty"
+    @State var nothing: Bool = false
     
     @ObservedObject var viewModel: ChatLogViewModel
     
     var body: some View {
-        messagesView
-            .navigationTitle(viewModel.chatUser?.email ?? "Email goes here")
-            .navigationBarTitleDisplayMode(.inline)
-            .onDisappear {
-                viewModel.firestoreListener?.remove()
+        VStack {
+            messagesView
+        }
+        .onAppear {
+            viewModel.fetchMessages()
+        }
+        .onDisappear {
+            viewModel.firestoreListener?.remove()
+        }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                CustomNavigationView(url: viewModel.getProfileImageString(),
+                                     title: viewModel.getEmailString(),
+                                     actionImage: "",
+                                     shouldToggleAction: $nothing)
             }
+        }
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     private var messagesView: some View {
@@ -56,8 +70,8 @@ struct ChatLogView: View {
             Image(systemName: "photo.on.rectangle")
                 .font(.system(size: 24))
                 .foregroundColor(Color(.label))
-            TextField("Description", text: $viewModel.chatText)
-            //                TextEditor(text: $chatText)
+                            TextEditor(text: $viewModel.chatText)
+                .frame(minHeight: 24, idealHeight: 24, maxHeight: 48)
             Button {
                 viewModel.handleSend()
             } label: {

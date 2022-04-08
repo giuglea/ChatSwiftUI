@@ -29,6 +29,8 @@
 		5051D1A92777CD2C00A6ACFB /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5051D1A82777CD2C00A6ACFB /* ChatMessage.swift */; };
 		508C4CF6274C4F730019C17E /* ChatUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508C4CF5274C4F730019C17E /* ChatUser.swift */; };
 		50D9F85327566F1400584BC4 /* ChatLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D9F85227566F1400584BC4 /* ChatLogView.swift */; };
+		EC03FE4227FDE64100DADD18 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EC03FE4127FDE64100DADD18 /* Launch Screen.storyboard */; };
+		EC5AF56B2800E0D100D32B15 /* CustomNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5AF56A2800E0D100D32B15 /* CustomNavigationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +53,8 @@
 		505A295C275AA7240032036C /* ChatSwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChatSwiftUI.entitlements; sourceTree = "<group>"; };
 		508C4CF5274C4F730019C17E /* ChatUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatUser.swift; sourceTree = "<group>"; };
 		50D9F85227566F1400584BC4 /* ChatLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogView.swift; sourceTree = "<group>"; };
+		EC03FE4127FDE64100DADD18 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		EC5AF56A2800E0D100D32B15 /* CustomNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +112,7 @@
 			children = (
 				505A295C275AA7240032036C /* ChatSwiftUI.entitlements */,
 				502104B92743039C002ABE68 /* ChatSwiftUIApp.swift */,
+				EC5AF56A2800E0D100D32B15 /* CustomNavigationView.swift */,
 				508C4CF4274C4F690019C17E /* Models */,
 				50D9F85127566EF600584BC4 /*  ChatLog */,
 				501F63CE2751985900A181EE /* CreateNewMessage */,
@@ -117,6 +122,7 @@
 				502104CC27430F83002ABE68 /* GoogleService-Info.plist */,
 				502104BD2743039D002ABE68 /* Assets.xcassets */,
 				502104BF2743039D002ABE68 /* Preview Content */,
+				EC03FE4127FDE64100DADD18 /* Launch Screen.storyboard */,
 			);
 			path = ChatSwiftUI;
 			sourceTree = "<group>";
@@ -229,6 +235,7 @@
 			files = (
 				502104C12743039D002ABE68 /* Preview Assets.xcassets in Resources */,
 				502104BE2743039D002ABE68 /* Assets.xcassets in Resources */,
+				EC03FE4227FDE64100DADD18 /* Launch Screen.storyboard in Resources */,
 				502104CD27430F84002ABE68 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -252,6 +259,7 @@
 				500A95D02779093B00E6DA84 /* FirebaseConstants.swift in Sources */,
 				5030F5E527458AA500BEF960 /* FirebaseManager.swift in Sources */,
 				502104BC2743039C002ABE68 /* LogInView.swift in Sources */,
+				EC5AF56B2800E0D100D32B15 /* CustomNavigationView.swift in Sources */,
 				502104BA2743039C002ABE68 /* ChatSwiftUIApp.swift in Sources */,
 				500A95D427790A3400E6DA84 /* MainMessagesViewModel.swift in Sources */,
 			);
@@ -382,15 +390,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ChatSwiftUI/ChatSwiftUI.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ChatSwiftUI/Preview Content\"";
-				DEVELOPMENT_TEAM = L796DQU6NC;
+				DEVELOPMENT_TEAM = DJPCR294JY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -400,6 +411,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.giuglea.com.ChatSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -412,15 +424,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ChatSwiftUI/ChatSwiftUI.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ChatSwiftUI/Preview Content\"";
-				DEVELOPMENT_TEAM = L796DQU6NC;
+				DEVELOPMENT_TEAM = DJPCR294JY;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -430,6 +445,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.giuglea.com.ChatSwiftUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -13,17 +13,27 @@ final class ChatLogViewModel: ObservableObject {
     @Published var chatMessages: [ChatMessage] = []
     @Published var count = 0
     
-    var chatUser: ChatUser?
+    var chatUser: ChatUser
     var firestoreListener: ListenerRegistration?
     
-    init(chatUser: ChatUser?) {
+    init(chatUser: ChatUser) {
         self.chatUser = chatUser
         fetchMessages()
     }
     
+    func getProfileImageString() -> String {
+        return chatUser.profileImageUrl
+    }
+    
+    func getEmailString() -> String {
+        return chatUser.email
+    }
+    
     func fetchMessages() {
-        guard let fromID = FirebaseManager.shared.auth.currentUser?.uid,
-              let toID = chatUser?.uid else { return }
+        guard let fromID = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        
+        let toID = chatUser.uid
+        
         firestoreListener?.remove()
         chatMessages.removeAll()
         firestoreListener = FirebaseManager.shared.firestore
@@ -48,8 +58,9 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func handleSend() {
-        guard let fromID = FirebaseManager.shared.auth.currentUser?.uid,
-              let toID = chatUser?.uid else { return }
+        guard let fromID = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        
+        let toID = chatUser.uid
         
         let document = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.messages)
@@ -91,8 +102,9 @@ final class ChatLogViewModel: ObservableObject {
     
     private func persistRecentMessage() {
         
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid,
-              let toID = chatUser?.uid else { return }
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        
+        let toID = chatUser.uid
         
         let document = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.recentMessages)
@@ -105,8 +117,8 @@ final class ChatLogViewModel: ObservableObject {
             FirebaseConstants.text: self.chatText,
             FirebaseConstants.fromID: uid,
             FirebaseConstants.toID: toID,
-            FirebaseConstants.profileImageURL: self.chatUser?.profileImageUrl ?? String(),
-            FirebaseConstants.email: self.chatUser?.email ?? String()
+            FirebaseConstants.profileImageURL: self.chatUser.profileImageUrl,
+            FirebaseConstants.email: self.chatUser.email
         ] as [String : Any]
         
         document.setData(data) { error in
