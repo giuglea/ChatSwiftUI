@@ -26,6 +26,24 @@ final class MainMessagesViewModel: ObservableObject {
         fetchRecentMessages()
     }
     
+    func getAllChatUsers() -> [ChatUser] {
+        let uidF = FirebaseManager.shared.auth.currentUser?.uid
+        var chatUsers: [ChatUser] = []
+        for recentMessage in recentMessages {
+            let uid = uidF == recentMessage.fromID ?
+            recentMessage.toID : recentMessage.fromID
+            chatUsers.append(
+                ChatUser(data: [
+                    FirebaseConstants.email: recentMessage.email,
+                    FirebaseConstants.profileImageURL: recentMessage.profileImageUrl,
+                    FirebaseConstants.uid: uid
+                ])
+            )
+        }
+        
+        return chatUsers
+    }
+    
     func fetchCurrentUser() {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else {
             errorMessage = "Cannnot find user"

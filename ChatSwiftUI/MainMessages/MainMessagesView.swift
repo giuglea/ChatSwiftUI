@@ -13,6 +13,7 @@ struct MainMessagesView: View {
     @State var shouldShowLogOutOptions = false
     @State var shouldNavigateToChatLogView = false
     @State var shouldShowNewMessageScreen = false
+    @State var showDraft = false
     @State var chatUser: ChatUser?
     
     @StateObject var viewModel = MainMessagesViewModel()
