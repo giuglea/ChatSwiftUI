@@ -13,7 +13,7 @@ final class MainMessagesViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var chatUser: ChatUser?
     @Published var isUserCunrentlyLoggedOut = false
-    @Published var recentMessages: [RecentMessage] = []
+    @Published var recentGroups: [ChatModel] = []
     
     private var firebaseListener: ListenerRegistration?
     
@@ -26,22 +26,8 @@ final class MainMessagesViewModel: ObservableObject {
         fetchRecentMessages()
     }
     
-    func getAllChatUsers() -> [ChatUser] {
-        let uidF = FirebaseManager.shared.auth.currentUser?.uid
-        var chatUsers: [ChatUser] = []
-        for recentMessage in recentMessages {
-            let uid = uidF == recentMessage.fromID ?
-            recentMessage.toID : recentMessage.fromID
-            chatUsers.append(
-                ChatUser(data: [
-                    FirebaseConstants.email: recentMessage.email,
-                    FirebaseConstants.profileImageURL: recentMessage.profileImageUrl,
-                    FirebaseConstants.uid: uid
-                ])
-            )
-        }
-        
-        return chatUsers
+    func getAllChatUsers() -> [ChatModel] {
+        return recentGroups
     }
     
     func fetchCurrentUser() {
@@ -51,52 +37,59 @@ final class MainMessagesViewModel: ObservableObject {
         }
         errorMessage = uid
         FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.users)
+            .collection(FirebaseConstants.Collection.users)
             .document(uid)
-            .getDocument { snapshhot, error in
+            .getDocument { [weak self] snapshot, error in
+                guard let welf = self else { return }
                 if let error = error {
-                    self.errorMessage = "Failed to fetch user: \(error)"
+                    welf.errorMessage = "Failed to fetch user: \(error)"
                     return
                 }
                 
-                guard let data = snapshhot?.data() else { return }
-                self.chatUser = ChatUser(data: data)
-                FirebaseManager.shared.currentUser = self.chatUser
+                guard let chatUser = try? snapshot?.data(as: ChatUser.self) else { return }
+                welf.chatUser = chatUser
+                FirebaseManager.shared.currentUser = welf.chatUser
             }
     }
     
     func handleSignOut() {
-        recentMessages.removeAll()
+        recentGroups.removeAll()
         firebaseListener?.remove()
         isUserCunrentlyLoggedOut.toggle()
         try? FirebaseManager.shared.auth.signOut()
     }
     
     func fetchRecentMessages() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        guard let user = FirebaseManager.shared.auth.currentUser else { return }
         
-        firebaseListener = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(uid)
-            .collection(FirebaseConstants.messages)
-            .order(by: FirebaseConstants.timeStamp)
+
+        FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.Collection.recentMessages)
+            .whereField(FirebaseConstants.Group.participantsNames, arrayContains: user.email ?? "")
             .addSnapshotListener { snapshot, error in
                 if let error = error {
                     self.errorMessage = error.localizedDescription
                     return
                 }
                 
-                snapshot?.documentChanges.forEach({ change in
+                snapshot?.documentChanges.forEach { change in
                     let docID = change.document.documentID
                     
-                    if let index = self.recentMessages.firstIndex(where: { $0.id == docID }) {
-                        self.recentMessages.remove(at: index)
+                    if let index = self.recentGroups.firstIndex(where: { $0.id == docID }) {
+                        self.recentGroups.remove(at: index)
                     }
-                    
-                    guard let recentMessage = try? change.document.data(as: RecentMessage.self) else { return }
-                    self.recentMessages.insert(recentMessage, at: 0)
-                })
-                
+                    guard let chatModel = try? change.document.data(as: ChatModel.self) else { return }
+                    self.recentGroups.insert(chatModel, at: 0)
+                }
             }
+    }
+}
+
+extension Encodable {
+
+    var dict : [String: Any]? {
+        guard let data = try? JSONEncoder().encode(self) else { return nil }
+        guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] else { return nil }
+        return json
     }
 }

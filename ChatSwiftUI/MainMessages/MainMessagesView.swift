@@ -14,7 +14,7 @@ struct MainMessagesView: View {
     @State var shouldNavigateToChatLogView = false
     @State var shouldShowNewMessageScreen = false
     @State var showDraft = false
-    @State var chatUser: ChatUser?
+    @State var chatModel: ChatModel?
     
     @StateObject var viewModel = MainMessagesViewModel()
     
@@ -26,8 +26,8 @@ struct MainMessagesView: View {
                     .padding(.vertical, 5)
                 messagesView
                 NavigationLink("", isActive: $shouldNavigateToChatLogView) {
-                    if let chatUser = chatUser {
-                        let chatLogViewModel = ChatLogViewModel(chatUser: chatUser)
+                    if let chatModel = chatModel {
+                        let chatLogViewModel = ChatLogViewModel(chatModel: chatModel)
                         ChatLogView(viewModel: chatLogViewModel)
                     } else {
                         Text("Please select an user")
@@ -62,21 +62,15 @@ struct MainMessagesView: View {
     }
     
     private var messagesView: some View {
-        List(viewModel.recentMessages) { recentMessage in
+        List(viewModel.recentGroups) { recentChat in
             VStack {
                 Button {
-                    let uid = FirebaseManager.shared.auth.currentUser?.uid == recentMessage.fromID ?
-                    recentMessage.toID : recentMessage.fromID
-
-                    self.chatUser = .init(data: [
-                        FirebaseConstants.email: recentMessage.email,
-                        FirebaseConstants.profileImageURL: recentMessage.profileImageUrl,
-                        FirebaseConstants.uid: uid
-                    ])
+                    self.chatModel = recentChat
                     self.shouldNavigateToChatLogView.toggle()
+                    
                 } label: {
                     HStack(spacing: 16) {
-                        WebImage(url: URL(string: recentMessage.profileImageUrl))
+                        WebImage(url: URL(string: recentChat.imageUrl ?? ""))
                             .resizable()
                             .scaledToFill()
                             .frame(width: 45, height: 45)
@@ -84,20 +78,20 @@ struct MainMessagesView: View {
                             .cornerRadius(45)
                             .overlay(RoundedRectangle(cornerRadius: 45).stroke(Color.init(.label), lineWidth: 1))
                             .shadow(radius: 5)
-                        
+
                         VStack(alignment: .leading) {
-                            Text(recentMessage.email)
+                            Text(recentChat.groupName)
                                 .font(.system(size: 16, weight: .bold))
                                 .multilineTextAlignment(.leading)
-                            Text(recentMessage.text)
+                            Text(recentChat.lastMessage?.text ?? "")
                                 .font(.system(size: 14))
                                 .foregroundColor(Color(.lightGray))
                                 .lineLimit(1)
                                 .multilineTextAlignment(.leading)
                         }
                         Spacer()
-                        
-                        Text(recentMessage.timeAgo)
+
+                        Text(recentChat.timeAgo)
                             .font(.system(size: 14, weight: .semibold))
                             .multilineTextAlignment(.trailing)
                     }
@@ -132,7 +126,15 @@ struct MainMessagesView: View {
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
             CreateNewMessageView { user in
                 self.shouldNavigateToChatLogView.toggle()
-                self.chatUser = user
+                guard let currentUser = FirebaseManager.shared.currentUser else { return }
+                let chatModel = ChatModel(id: user.id,
+                                          groupName: user.email,
+                                          participants: [user, currentUser],
+                                          participantsNames: [currentUser.email, user.email],
+                                          imageUrl: user.profileImageUrl,
+                                          lastMessage: nil,
+                                          timeStamp: Date())
+                self.chatModel = chatModel
             }
         }
         

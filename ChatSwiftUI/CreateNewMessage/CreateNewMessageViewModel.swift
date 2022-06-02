@@ -17,16 +17,15 @@ final class CreateNewMessageViewModel: ObservableObject {
     
     private func fetchAllUsers() {
         FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.users)
+            .collection(FirebaseConstants.Collection.users)
             .getDocuments { documentsSnapshot, error in
                 if let _ = error {
                     return
                 }
                 
                 documentsSnapshot?.documents.forEach { snapshot in
-                    let data = snapshot.data()
-                    let chatUser = ChatUser(data: data)
-                    if chatUser.uid != FirebaseManager.shared.currentUser?.uid {
+                    guard let chatUser = try? snapshot.data(as: ChatUser.self) else { return }
+                    if chatUser.id != FirebaseManager.shared.currentUser?.id {
                         self.users.append(chatUser)
                     }
                 }

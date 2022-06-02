@@ -21,6 +21,7 @@
 		502104CD27430F84002ABE68 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 502104CC27430F83002ABE68 /* GoogleService-Info.plist */; };
 		5030F5E527458AA500BEF960 /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5030F5E427458AA500BEF960 /* FirebaseManager.swift */; };
 		5030F5E82745917700BEF960 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5030F5E72745917700BEF960 /* SDWebImageSwiftUI */; };
+		50396050284809D6000D34EE /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039604F284809D6000D34EE /* ChatModel.swift */; };
 		5051D19F2777C2BC00A6ACFB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5051D19E2777C2BC00A6ACFB /* FirebaseAuth */; };
 		5051D1A12777C2BC00A6ACFB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5051D1A02777C2BC00A6ACFB /* FirebaseFirestore */; };
 		5051D1A32777C2BC00A6ACFB /* FirebaseFirestoreSwift-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 5051D1A22777C2BC00A6ACFB /* FirebaseFirestoreSwift-Beta */; };
@@ -50,6 +51,7 @@
 		502104C02743039D002ABE68 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		502104CC27430F83002ABE68 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5030F5E427458AA500BEF960 /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
+		5039604F284809D6000D34EE /* ChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
 		5051D1A62777C47D00A6ACFB /* RecentMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentMessage.swift; sourceTree = "<group>"; };
 		5051D1A82777CD2C00A6ACFB /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		505A295C275AA7240032036C /* ChatSwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChatSwiftUI.entitlements; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 				5051D1A82777CD2C00A6ACFB /* ChatMessage.swift */,
 				508C4CF5274C4F730019C17E /* ChatUser.swift */,
 				5051D1A62777C47D00A6ACFB /* RecentMessage.swift */,
+				5039604F284809D6000D34EE /* ChatModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 				EC5AF56B2800E0D100D32B15 /* CustomNavigationView.swift in Sources */,
 				502104BA2743039C002ABE68 /* ChatSwiftUIApp.swift in Sources */,
 				500A95D427790A3400E6DA84 /* MainMessagesViewModel.swift in Sources */,
+				50396050284809D6000D34EE /* ChatModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,34 +13,32 @@ final class ChatLogViewModel: ObservableObject {
     @Published var chatMessages: [ChatMessage] = []
     @Published var count = 0
     
-    var chatUser: ChatUser
+    var chatModel: ChatModel
     var firestoreListener: ListenerRegistration?
     
-    init(chatUser: ChatUser) {
-        self.chatUser = chatUser
+    init(chatModel: ChatModel) {
+        self.chatModel = chatModel
         fetchMessages()
     }
     
     func getProfileImageString() -> String {
-        return chatUser.profileImageUrl
+        return chatModel.imageUrl ?? ""
     }
     
-    func getEmailString() -> String {
-        return chatUser.email
+    func getName() -> String {
+        return chatModel.groupName
     }
     
     func fetchMessages() {
-        guard let fromID = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        
-        let toID = chatUser.uid
-        
+        guard let id = chatModel.id else { return }
         firestoreListener?.remove()
         chatMessages.removeAll()
+        
         firestoreListener = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(fromID)
-            .collection(toID)
-            .order(by: FirebaseConstants.timeStamp)
+            .collection(FirebaseConstants.Group.groupId)
+            .document(id)
+            .collection(FirebaseConstants.Collection.messages)
+            .order(by: FirebaseConstants.Message.timeStamp)
             .addSnapshotListener { snapshot, error in
                 if let _ = error {
                     return
@@ -58,98 +56,55 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func handleSend() {
-        guard let fromID = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        
-        let toID = chatUser.uid
+        guard let id = chatModel.id else { return }
+        guard let currentUser = FirebaseManager.shared.currentUser else { return }
         
         let document = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(fromID)
-            .collection(toID)
+            .collection(FirebaseConstants.Group.groupId)
+            .document(id)
+            .collection(FirebaseConstants.Collection.messages)
             .document()
         
-        let messageData = [FirebaseConstants.fromID: fromID,
-                           FirebaseConstants.toID: toID,
-                           FirebaseConstants.text: chatText,
-                           FirebaseConstants.timeStamp: Timestamp()] as [String: Any]
+        let chatMessage = ChatMessage(fromId: currentUser.id ?? "",
+                                      fromName: currentUser.email,
+                                      text: chatText,
+                                      imageUrl: "",
+                                      timeStamp: Date())
         
-        document.setData(messageData) { error in
+        try? document.setData(from: chatMessage) { [weak self] error in
+            guard let welf = self else { return }
+            
             if let error = error {
                 print(error)
             }
             DispatchQueue.main.async {
-                self.count += 1
+                welf.count += 1
             }
             
-            self.persistRecentMessage()
-        }
-        
-        let recipientMessageDocument = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.messages)
-            .document(toID)
-            .collection(fromID)
-            .document()
-        
-        recipientMessageDocument.setData(messageData) { error in
-            if let error = error {
-                print(error)
-                return
-            }
-            
-            print("Recipient saved message as well")
+            welf.persistRecentMessage()
         }
     }
     
     private func persistRecentMessage() {
-        
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        
-        let toID = chatUser.uid
+        guard let id = chatModel.id else { return }
+        guard let currentUser = FirebaseManager.shared.currentUser else { return }
         
         let document = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(uid)
-            .collection(FirebaseConstants.messages)
-            .document(toID)
+            .collection(FirebaseConstants.Collection.recentMessages)
+            .document(id)
         
-        let data = [
-            FirebaseConstants.timeStamp: Timestamp(),
-            FirebaseConstants.text: self.chatText,
-            FirebaseConstants.fromID: uid,
-            FirebaseConstants.toID: toID,
-            FirebaseConstants.profileImageURL: self.chatUser.profileImageUrl,
-            FirebaseConstants.email: self.chatUser.email
-        ] as [String : Any]
+        let chatMessage = ChatMessage(fromId: currentUser.id ?? "",
+                                      fromName: currentUser.email,
+                                      text: chatText,
+                                      imageUrl: "",
+                                      timeStamp: Date())
+        chatModel.lastMessage = chatMessage
         
-        document.setData(data) { error in
-            if let _ = error {
-                return
+        try? document.setData(from: chatModel) { error in
+            if let error = error {
+                print(error)
             }
         }
-        
-        guard let currentUser = FirebaseManager.shared.auth.currentUser else { return }
-        
-        let receiverdata = [
-            FirebaseConstants.timeStamp: Timestamp(),
-            FirebaseConstants.text: self.chatText,
-            FirebaseConstants.fromID: uid,
-            FirebaseConstants.toID: toID,
-            FirebaseConstants.profileImageURL: currentUser.photoURL?.absoluteString ?? String(),
-            FirebaseConstants.email: currentUser.email ?? String()
-        ] as [String : Any]
-        
-        let receiverDocument = FirebaseManager.shared.firestore
-            .collection(FirebaseConstants.recentMessages)
-            .document(toID)
-            .collection(FirebaseConstants.messages)
-            .document(uid)
-        
-        receiverDocument.setData(receiverdata) { error in
-            if let _ = error {
-                return
-            }
-        }
-        
         self.chatText = ""
     }
 }

@@ -30,7 +30,7 @@ struct ChatLogView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 CustomNavigationView(url: viewModel.getProfileImageString(),
-                                     title: viewModel.getEmailString(),
+                                     title: viewModel.getName(),
                                      actionImage: "",
                                      shouldToggleAction: $nothing)
             }
@@ -98,7 +98,7 @@ struct MessageBubbleView: View {
     
     var body: some View {
         VStack {
-            if message.fromID == FirebaseManager.shared.auth.currentUser? .uid {
+            if message.fromId == FirebaseManager.shared.auth.currentUser? .uid {
                 fromView
             } else {
                 toView

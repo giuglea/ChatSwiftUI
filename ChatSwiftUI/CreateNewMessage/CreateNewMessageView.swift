@@ -23,6 +23,7 @@ struct CreateNewMessageView: View {
                     Button {
                         presentationMode.wrappedValue.dismiss()
                         didSelectNewUser(user)
+                        //TODO: Change here to add more users to the chat and do the job inside the viewmodel
                     } label: {
                         HStack {
                             WebImage(url: URL(string: user.profileImageUrl))

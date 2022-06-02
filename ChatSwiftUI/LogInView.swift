@@ -19,7 +19,6 @@ struct LogInView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                
                 VStack(spacing: 16) {
                     Picker(selection: $isLoginMode, label:
                             Text("Picker")) {
@@ -157,24 +156,24 @@ struct LogInView: View {
     
     private func storeUserInformation(imageProfileUrl: URL) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        let userData = ["email": self.email,
-                        "uid": uid,
-                        "profileImageUrl": imageProfileUrl.absoluteString]
-        FirebaseManager.shared.firestore.collection("users")
-            .document(uid).setData(userData) { error in
+        let chatUser = ChatUser(id: uid,
+                                email: email,
+                                profileImageUrl: imageProfileUrl.absoluteString)
+        try? FirebaseManager.shared.firestore.collection(FirebaseConstants.Collection.users)
+            .document(uid)
+            .setData(from: chatUser) { error in
                 if let error = error {
                     print(error)
-                    self.loginStatusMeesage = error.localizedDescription
-                    self.didCompleteLogIn()
+                    loginStatusMeesage = error.localizedDescription
+                    didCompleteLogIn()
                 }
             }
-        
     }
 }
 
-struct ContentView_Previews2: PreviewProvider {
-    static var previews: some View {
-        LogInView {
-        }
-    }
-}
+//struct ContentView_Previews2: PreviewProvider {
+//    static var previews: some View {
+//        LogInView {
+//        }
+//    }
+//}

@@ -5,20 +5,10 @@
 //  Created by Tzy on 23.11.2021.
 //
 
-import Foundation
+import FirebaseFirestoreSwift
 
-struct ChatUser: Identifiable {
-    var id: String {
-        return uid
-    }
-    
-    let uid: String
+struct ChatUser: Codable, Identifiable {
+    @DocumentID var id: String?
     let email: String
     let profileImageUrl: String
-    
-    init(data: [String: Any]) {
-        uid = data[FirebaseConstants.uid] as? String ?? ""
-        email = data[FirebaseConstants.email] as? String ?? ""
-        profileImageUrl = data[FirebaseConstants.profileImageURL] as? String ?? ""
-    }
 }
