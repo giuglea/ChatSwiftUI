@@ -100,6 +100,6 @@ struct DraftMasterView: View {
 
 struct DraftMasterView_Previews: PreviewProvider {
     static var previews: some View {
-        DraftMasterView(viewModel: DraftMasterViewModel(chatUser: nil, users: []))
+        DraftMasterView(viewModel: DraftMasterViewModel(firebaseManager: FirebaseManagerImplementation()))
     }
 }

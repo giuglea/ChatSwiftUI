@@ -10,11 +10,10 @@ import SDWebImageSwiftUI
 
 struct CreateNewMessageView: View {
     
+    @ObservedObject var viewModel: CreateNewMessageViewModel
     let didSelectNewUser: (ChatUser) -> ()
     
     @Environment(\.presentationMode) var presentationMode
-    
-    @StateObject var viewModel = CreateNewMessageViewModel()
     
     var body: some View {
         NavigationView {
@@ -22,11 +21,11 @@ struct CreateNewMessageView: View {
                 ForEach(viewModel.users) { user in
                     Button {
                         presentationMode.wrappedValue.dismiss()
-                        didSelectNewUser(user)
+                        didSelectNewUser(user.chatUser)
                         //TODO: Change here to add more users to the chat and do the job inside the viewmodel
                     } label: {
                         HStack {
-                            WebImage(url: URL(string: user.profileImageUrl))
+                            WebImage(url: URL(string: user.chatUser.profileImageUrl))
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 50, height: 50)
@@ -37,7 +36,7 @@ struct CreateNewMessageView: View {
                                 )
                                 .shadow(radius: 5)
                             
-                            Text(user.email)
+                            Text(user.chatUser.email)
                             Spacer()
                         }
                         .padding(.horizontal)
@@ -63,7 +62,7 @@ struct CreateNewMessageView: View {
 
 struct CreateNewMessageView_Previews: PreviewProvider {
     static var previews: some View {
-        CreateNewMessageView { _ in
+        CreateNewMessageView(viewModel: CreateNewMessageViewModel(firebaseManager: FirebaseManagerImplementation())) { _ in
         }
     }
 }

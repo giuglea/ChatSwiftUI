@@ -15,50 +15,33 @@ struct MainMessagesView: View {
     @State var shouldShowNewMessageScreen = false
     @State var showDraft = false
     @State var chatModel: ChatModel?
+    @State var navigationTitle = "Messages"
     
-    @StateObject var viewModel = MainMessagesViewModel()
+    @ObservedObject var viewModel: MainMessagesViewModel
     
     var body: some View {
-        NavigationView {
-            VStack {
-                Divider()
-                    .ignoresSafeArea(.all, edges: .horizontal)
-                    .padding(.vertical, 5)
-                messagesView
-                NavigationLink("", isActive: $shouldNavigateToChatLogView) {
-                    if let chatModel = chatModel {
-                        let chatLogViewModel = ChatLogViewModel(chatModel: chatModel)
-                        ChatLogView(viewModel: chatLogViewModel)
-                    } else {
-                        Text("Please select an user")
-                    }
-                }
-            }
-            .overlay(newMessageButton, alignment: .bottom)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    CustomNavigationView(url: viewModel.chatUser?.profileImageUrl,
-                                         title: viewModel.chatUser?.email,
-                                         shouldToggleAction: $shouldShowLogOutOptions)
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .actionSheet(isPresented: $shouldShowLogOutOptions) {
-                .init(title: Text("Settings"), message: Text("What do you want to do?"), buttons: [
-                    .destructive(Text("Sign Out"), action: {
-                        viewModel.handleSignOut()
-                    }),
-                    .cancel()
-                ])
-            }
-            .fullScreenCover(isPresented: $viewModel.isUserCunrentlyLoggedOut) {
-                LogInView {
-                    self.viewModel.isUserCunrentlyLoggedOut = false
-                    self.viewModel.fetchCurrentUser()
-                    self.viewModel.fetchRecentMessages()
+        VStack {
+            messagesView
+            NavigationLink("", isActive: $shouldNavigateToChatLogView) {
+                if let chatModel = chatModel {
+                    let chatLogViewModel = ChatLogViewModel(chatModel: chatModel,
+                                                            firebaseManager: viewModel.firebaseManager)
+                    ChatLogView(viewModel: chatLogViewModel)
+                } else {
+                    Text("Please select an user")
                 }
             }
         }
+        .overlay(newMessageButton, alignment: .bottom)
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                CustomNavigationView(url: viewModel.chatUser?.profileImageUrl,
+//                                     title: viewModel.chatUser?.email,
+//                                     shouldToggleAction: $shouldShowLogOutOptions)
+//            }
+//        }
+        .navigationBarTitleDisplayMode(.large)
+        .navigationTitle("Messages")
     }
     
     private var messagesView: some View {
@@ -67,7 +50,6 @@ struct MainMessagesView: View {
                 Button {
                     self.chatModel = recentChat
                     self.shouldNavigateToChatLogView.toggle()
-                    
                 } label: {
                     HStack(spacing: 16) {
                         WebImage(url: URL(string: recentChat.imageUrl ?? ""))
@@ -101,32 +83,33 @@ struct MainMessagesView: View {
         }
         .listStyle(.plain)
         .refreshable {
+            // TODO: check if another request is necessary
             viewModel.fetchRecentMessages()
         }
     }
     
     private var newMessageButton: some View {
-        Button {
-            shouldShowNewMessageScreen.toggle()
-        } label: {
-            HStack {
-                Spacer()
-                Text("+ New Message")
-                    .font(.system(size: 16, weight: .bold))
-                Spacer()
+        HStack {
+            Spacer()
+            Button {
+                shouldShowNewMessageScreen.toggle()
+            } label: {
+                Image(systemName: "plus.message.fill")
+                    .resizable()
+                    .frame(width: 48, height: 48)
+                    .foregroundColor(.white)
+                    .padding(16)
             }
-            .foregroundColor(.white)
-            .padding(.vertical)
-            .background(Color.blue)
-            .cornerRadius(32)
-            .padding(.horizontal)
-            .shadow(radius: 15)
+            .background(.blue)
+            .cornerRadius(40)
         }
-        .padding(.bottom)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 32)
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
-            CreateNewMessageView { user in
+            let viewModel = CreateNewMessageViewModel(firebaseManager: viewModel.firebaseManager)
+            CreateNewMessageView(viewModel: viewModel) { user in
                 self.shouldNavigateToChatLogView.toggle()
-                guard let currentUser = FirebaseManager.shared.currentUser else { return }
+                guard let currentUser = viewModel.firebaseManager.getCurrentUser() else { return }
                 let chatModel = ChatModel(id: user.id,
                                           groupName: user.email,
                                           participants: [user, currentUser],
@@ -137,7 +120,6 @@ struct MainMessagesView: View {
                 self.chatModel = chatModel
             }
         }
-        
     }
 }
 

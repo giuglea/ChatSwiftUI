@@ -7,13 +7,21 @@
 
 import Firebase
 
-final class FirebaseManager: NSObject {
+protocol FirebaseManager {
+    func getCurrentFirebaseUser() -> User?
+    func getCurrentUser() -> ChatUser?
+
+    var storage: Storage { get }
+    var firestore: Firestore { get }
+    var auth: Auth { get }
+}
+
+final class FirebaseManagerImplementation: NSObject,
+                                           FirebaseManager {
     let auth: Auth
     let storage: Storage
     let firestore: Firestore
     var currentUser: ChatUser?
-    
-    static let shared = FirebaseManager()
     
     override init() {
         FirebaseApp.configure()
@@ -23,5 +31,13 @@ final class FirebaseManager: NSObject {
         self.firestore = Firestore.firestore()
         
         super.init()
+    }
+    
+    func getCurrentFirebaseUser() -> User? {
+        return auth.currentUser
+    }
+    
+    func getCurrentUser() -> ChatUser? {
+        return currentUser
     }
 }

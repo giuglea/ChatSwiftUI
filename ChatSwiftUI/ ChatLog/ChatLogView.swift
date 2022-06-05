@@ -14,6 +14,10 @@ struct ChatLogView: View {
     
     static let scrollToString = "Empty"
     @State var nothing: Bool = false
+    @State var pickedImage: UIImage?
+    @State var shouldShowImagePicker: Bool = false
+    
+    @Environment(\.presentationMode) var presentationMode
     
     @ObservedObject var viewModel: ChatLogViewModel
     
@@ -27,15 +31,20 @@ struct ChatLogView: View {
         .onDisappear {
             viewModel.firestoreListener?.remove()
         }
+        .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItem(placement: .navigationBarLeading) {
+                CustomBackButton()
+            }
+            ToolbarItem(placement: .navigationBarLeading) {
                 CustomNavigationView(url: viewModel.getProfileImageString(),
                                      title: viewModel.getName(),
-                                     actionImage: "",
                                      shouldToggleAction: $nothing)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(isPresented: $shouldShowImagePicker, onDismiss: nil) {
+            ImagePicker(image: $pickedImage)
+        }
     }
     
     private var messagesView: some View {
@@ -44,7 +53,8 @@ struct ChatLogView: View {
                 ScrollViewReader { scrollViewProxy in
                     VStack {
                         ForEach(viewModel.chatMessages) { message in
-                            MessageBubbleView(message: message)
+                            let type = message.fromId == viewModel.firebaseManager.auth.currentUser?.uid
+                            MessageBubbleView(message: message, type: MessageType.getMessageType(from: type))
                         }
                         
                         HStack{ Spacer() }
@@ -67,11 +77,18 @@ struct ChatLogView: View {
     
     private var chatBottomBar: some View {
         HStack {
-            Image(systemName: "photo.on.rectangle")
-                .font(.system(size: 24))
-                .foregroundColor(Color(.label))
-                            TextEditor(text: $viewModel.chatText)
+            Button {
+                shouldShowImagePicker.toggle()
+            } label: {
+                Image(systemName: "photo.on.rectangle")
+                    .font(.system(size: 24))
+                    .foregroundColor(Color(.label))
+                    .frame(width: 24, height: 24)
+            }
+            
+            TextEditor(text: $viewModel.chatText)
                 .frame(minHeight: 24, idealHeight: 24, maxHeight: 48)
+
             Button {
                 viewModel.handleSend()
             } label: {
@@ -93,14 +110,25 @@ struct ChatLogView: View {
     }
 }
 
+enum MessageType {
+    case to
+    case from
+    
+    static func getMessageType(from value: Bool) -> MessageType {
+        value == true ? .from : .to
+    }
+}
+
 struct MessageBubbleView: View {
     let message: ChatMessage
+    let type: MessageType
     
     var body: some View {
         VStack {
-            if message.fromId == FirebaseManager.shared.auth.currentUser? .uid {
+            switch type {
+            case .from:
                 fromView
-            } else {
+            case .to:
                 toView
             }
         }
@@ -109,37 +137,68 @@ struct MessageBubbleView: View {
     }
     
     private var fromView: some View {
+        VStack(alignment: .trailing, spacing: 8) {
             HStack {
                 Spacer()
-                HStack {
+                VStack(spacing: 8) {
+                    Text(message.fromName)
+                        .foregroundColor(.white.opacity(0.8))
                     Text(message.text ?? String())
                         .foregroundColor(.white)
                 }
                 .padding()
                 .background(Color.blue)
                 .cornerRadius(8)
+                .padding(.leading, 30)
             }
+            if !(message.imageUrl?.isEmpty ?? true) {
+                imageView
+            }
+        }
     }
     
     private var toView: some View {
-        HStack {
+        VStack(alignment: .trailing, spacing: 8) {
             HStack {
-                Text(message.text ?? String())
-                    .foregroundColor(.white)
+                VStack(spacing: 8) {
+                    Text(message.fromName)
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.trailing)
+                    Text(message.text ?? String())
+                        .foregroundColor(.white)
+                }
+                .padding()
+                .background(Color(.purple))
+                .cornerRadius(8)
+                .padding(.trailing, 30)
+                Spacer()
             }
-            .padding()
-            .background(Color(.purple))
+            if !(message.imageUrl?.isEmpty ?? true) {
+                imageView
+            }
+        }
+    }
+    
+    private var imageView: some View {
+        WebImage(url: URL(string: message.imageUrl ?? ""))
+            .resizable()
+            .placeholder(content: {
+                ProgressView()
+            })
+            .scaledToFill()
+            .frame(width: 140, height: 140)
             .cornerRadius(8)
-            Spacer()
-        }
+            .overlay(RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(.label), lineWidth: 1))
+            .shadow(radius: 3)
     }
 }
 
 
-struct ChatLogView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            MainMessagesView()
-        }
-    }
-}
+//struct ChatLogView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        NavigationView {
+//            MainMessagesView()
+//        }
+//    }
+//}

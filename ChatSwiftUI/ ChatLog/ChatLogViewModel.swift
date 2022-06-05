@@ -7,17 +7,22 @@
 
 import Firebase
 import FirebaseFirestoreSwift
+import UIKit
 
 final class ChatLogViewModel: ObservableObject {
     @Published var chatText: String = ""
     @Published var chatMessages: [ChatMessage] = []
     @Published var count = 0
+    @Published var errorMessage: String?
     
     var chatModel: ChatModel
+    let firebaseManager: FirebaseManager
     var firestoreListener: ListenerRegistration?
     
-    init(chatModel: ChatModel) {
+    init(chatModel: ChatModel,
+         firebaseManager: FirebaseManager) {
         self.chatModel = chatModel
+        self.firebaseManager = firebaseManager
         fetchMessages()
     }
     
@@ -30,38 +35,48 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     func fetchMessages() {
-        guard let id = chatModel.id else { return }
+        guard let chatModelId = chatModel.id else {
+            return
+        }
         firestoreListener?.remove()
         chatMessages.removeAll()
         
-        firestoreListener = FirebaseManager.shared.firestore
+        
+        // TODO: Chnage this into an unique identifier: chatModelId
+        firestoreListener = firebaseManager.firestore
             .collection(FirebaseConstants.Group.groupId)
-            .document(id)
+            .document(chatModelId)
             .collection(FirebaseConstants.Collection.messages)
             .order(by: FirebaseConstants.Message.timeStamp)
-            .addSnapshotListener { snapshot, error in
-                if let _ = error {
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let welf = self else {
+                    return
+                }
+                if let error = error {
+                    welf.errorMessage = error.localizedDescription
                     return
                 }
                 snapshot?.documentChanges.forEach { change in
                     if change.type == .added,
                        let chatMessage = try? change.document.data(as: ChatMessage.self) {
-                        self.chatMessages.append(chatMessage)
+                        welf.chatMessages.append(chatMessage)
                     }
                 }
                 DispatchQueue.main.async {
-                    self.count += 1
+                    welf.count += 1
                 }
             }
     }
     
     func handleSend() {
-        guard let id = chatModel.id else { return }
-        guard let currentUser = FirebaseManager.shared.currentUser else { return }
+        guard let chatModelId = chatModel.id,
+              let currentUser = firebaseManager.getCurrentUser() else {
+            return
+        }
         
-        let document = FirebaseManager.shared.firestore
+        let document = firebaseManager.firestore
             .collection(FirebaseConstants.Group.groupId)
-            .document(id)
+            .document(chatModelId)
             .collection(FirebaseConstants.Collection.messages)
             .document()
         
@@ -72,10 +87,12 @@ final class ChatLogViewModel: ObservableObject {
                                       timeStamp: Date())
         
         try? document.setData(from: chatMessage) { [weak self] error in
-            guard let welf = self else { return }
-            
+            guard let welf = self else {
+                return
+            }
             if let error = error {
-                print(error)
+                welf.errorMessage = error.localizedDescription
+                return
             }
             DispatchQueue.main.async {
                 welf.count += 1
@@ -86,10 +103,12 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     private func persistRecentMessage() {
-        guard let id = chatModel.id else { return }
-        guard let currentUser = FirebaseManager.shared.currentUser else { return }
+        guard let id = chatModel.id,
+              let currentUser = firebaseManager.getCurrentUser() else {
+            return
+        }
         
-        let document = FirebaseManager.shared.firestore
+        let document = firebaseManager.firestore
             .collection(FirebaseConstants.Collection.recentMessages)
             .document(id)
         
@@ -100,11 +119,34 @@ final class ChatLogViewModel: ObservableObject {
                                       timeStamp: Date())
         chatModel.lastMessage = chatMessage
         
-        try? document.setData(from: chatModel) { error in
+        try? document.setData(from: chatModel) { [weak self] error in
             if let error = error {
-                print(error)
+                self?.errorMessage = error.localizedDescription
             }
         }
-        self.chatText = ""
+        chatText = ""
+    }
+    
+    private func persistImageToStorage(image: UIImage?) {
+        guard let uid = firebaseManager.getCurrentFirebaseUser()?.uid else {
+            return
+        }
+        let ref = firebaseManager.storage.reference(withPath: uid)
+        guard let imageData = image?.jpegData(compressionQuality: 0.5) else { return }
+        ref.putData(imageData, metadata: nil) { metadata, error in
+            if let error = error {
+                self.errorMessage = "Failed to save image \(error)"
+                return
+            }
+            ref.downloadURL { url, error in
+                if let error = error {
+                    self.errorMessage = "Failed to retreive download URL\(error)"
+                    return
+                }
+                guard let url = url else { return }
+                // TODO: Send message inside a que and upload the message
+                // TODO: Add loading indicator
+            }
+        }
     }
 }

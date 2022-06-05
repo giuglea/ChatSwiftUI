@@ -20,6 +20,14 @@ struct ChatModel: Codable, Identifiable {
     var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: timeStamp, relativeTo: Date())
+        return formatter.localizedString(for: lastMessage?.timeStamp ?? Date(),
+                                         relativeTo: Date())
+    }
+    
+    var timeCreated: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: timeStamp,
+                                         relativeTo: Date())
     }
 }

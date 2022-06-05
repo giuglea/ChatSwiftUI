@@ -9,15 +9,14 @@ import Firebase
 import FirebaseFirestoreSwift
 
 final class DraftMasterViewModel: ObservableObject {
+    let firebaseManager: FirebaseManager
     
     @Published var chatUser: ChatUser?
-    @Published var users: [ChatUser]
+    @Published var users: [ChatUser] = []
     @Published var message = ""
     
-    init(chatUser: ChatUser?,
-         users: [ChatUser]) {
-        self.chatUser = chatUser
-        self.users = users
+    init(firebaseManager: FirebaseManager) {
+        self.firebaseManager = firebaseManager
     }
     
 //    func handleSend(for id: String) {
