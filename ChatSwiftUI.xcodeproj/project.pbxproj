@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		50098FFD284FA25800EFB837 /* UserInterfaceConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50098FFC284FA25800EFB837 /* UserInterfaceConstants.swift */; };
 		500A95CE277908EF00E6DA84 /* ChatLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500A95CD277908EF00E6DA84 /* ChatLogViewModel.swift */; };
 		500A95D02779093B00E6DA84 /* FirebaseConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500A95CF2779093B00E6DA84 /* FirebaseConstants.swift */; };
 		500A95D2277909A700E6DA84 /* CreateNewMessageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500A95D1277909A700E6DA84 /* CreateNewMessageViewModel.swift */; };
@@ -26,6 +27,7 @@
 		50327324284CD3D1004BB314 /* MainTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50327323284CD3D1004BB314 /* MainTabBar.swift */; };
 		50327326284D12AD004BB314 /* CustomBackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50327325284D12AD004BB314 /* CustomBackButton.swift */; };
 		50327328284D1711004BB314 /* LogInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50327327284D1711004BB314 /* LogInViewModel.swift */; };
+		5032732A284D3A07004BB314 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50327329284D3A07004BB314 /* ActivityIndicator.swift */; };
 		50396050284809D6000D34EE /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5039604F284809D6000D34EE /* ChatModel.swift */; };
 		5051D19F2777C2BC00A6ACFB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5051D19E2777C2BC00A6ACFB /* FirebaseAuth */; };
 		5051D1A12777C2BC00A6ACFB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5051D1A02777C2BC00A6ACFB /* FirebaseFirestore */; };
@@ -41,6 +43,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		50098FFC284FA25800EFB837 /* UserInterfaceConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInterfaceConstants.swift; sourceTree = "<group>"; };
 		500A95CD277908EF00E6DA84 /* ChatLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatLogViewModel.swift; sourceTree = "<group>"; };
 		500A95CF2779093B00E6DA84 /* FirebaseConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseConstants.swift; sourceTree = "<group>"; };
 		500A95D1277909A700E6DA84 /* CreateNewMessageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNewMessageViewModel.swift; sourceTree = "<group>"; };
@@ -60,6 +63,7 @@
 		50327323284CD3D1004BB314 /* MainTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBar.swift; sourceTree = "<group>"; };
 		50327325284D12AD004BB314 /* CustomBackButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBackButton.swift; sourceTree = "<group>"; };
 		50327327284D1711004BB314 /* LogInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewModel.swift; sourceTree = "<group>"; };
+		50327329284D3A07004BB314 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		5039604F284809D6000D34EE /* ChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
 		5051D1A82777CD2C00A6ACFB /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		505A295C275AA7240032036C /* ChatSwiftUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChatSwiftUI.entitlements; sourceTree = "<group>"; };
@@ -158,6 +162,7 @@
 				50133D4627440FE20043AEF1 /* ImagePicker.swift */,
 				5030F5E427458AA500BEF960 /* FirebaseManager.swift */,
 				500A95CF2779093B00E6DA84 /* FirebaseConstants.swift */,
+				50098FFC284FA25800EFB837 /* UserInterfaceConstants.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -176,6 +181,7 @@
 			children = (
 				EC5AF56A2800E0D100D32B15 /* CustomNavigationView.swift */,
 				50327325284D12AD004BB314 /* CustomBackButton.swift */,
+				50327329284D3A07004BB314 /* ActivityIndicator.swift */,
 			);
 			path = CustomComponents;
 			sourceTree = "<group>";
@@ -304,6 +310,7 @@
 				50D9F85327566F1400584BC4 /* ChatLogView.swift in Sources */,
 				50327328284D1711004BB314 /* LogInViewModel.swift in Sources */,
 				500A95D2277909A700E6DA84 /* CreateNewMessageViewModel.swift in Sources */,
+				50098FFD284FA25800EFB837 /* UserInterfaceConstants.swift in Sources */,
 				500A95CE277908EF00E6DA84 /* ChatLogViewModel.swift in Sources */,
 				5051D1A92777CD2C00A6ACFB /* ChatMessage.swift in Sources */,
 				EC00BE50280383E90044D786 /* DraftMasterViewModel.swift in Sources */,
@@ -312,6 +319,7 @@
 				50327324284CD3D1004BB314 /* MainTabBar.swift in Sources */,
 				EC00BE4E28036B580044D786 /* DraftMasterView.swift in Sources */,
 				50133D4A27445CE10043AEF1 /* MainMessagesView.swift in Sources */,
+				5032732A284D3A07004BB314 /* ActivityIndicator.swift in Sources */,
 				500A95D02779093B00E6DA84 /* FirebaseConstants.swift in Sources */,
 				5030F5E527458AA500BEF960 /* FirebaseManager.swift in Sources */,
 				502104BC2743039C002ABE68 /* LogInView.swift in Sources */,

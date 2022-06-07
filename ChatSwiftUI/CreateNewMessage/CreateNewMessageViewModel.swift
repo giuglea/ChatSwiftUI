@@ -20,12 +20,24 @@ final class CreateNewMessageViewModel: ObservableObject {
     
     @Published var users: [SelectableChatUser] = []
     @Published var errorMessage: String?
+    @Published var canCreateChat = false
     
     let firebaseManager: FirebaseManager
     
     init(firebaseManager: FirebaseManager) {
         self.firebaseManager = firebaseManager
         fetchAllUsers()
+    }
+    
+    func didSelectUser(with id: String?) {
+        guard let id = id,
+              let index = users.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        users[index].isSelected.toggle()
+        canCreateChat = users.contains(where: { user in
+            user.isSelected
+        })
     }
     
     private func fetchAllUsers() {

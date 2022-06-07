@@ -33,13 +33,6 @@ struct MainMessagesView: View {
             }
         }
         .overlay(newMessageButton, alignment: .bottom)
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarLeading) {
-//                CustomNavigationView(url: viewModel.chatUser?.profileImageUrl,
-//                                     title: viewModel.chatUser?.email,
-//                                     shouldToggleAction: $shouldShowLogOutOptions)
-//            }
-//        }
         .navigationBarTitleDisplayMode(.large)
         .navigationTitle("Messages")
     }
@@ -83,7 +76,6 @@ struct MainMessagesView: View {
         }
         .listStyle(.plain)
         .refreshable {
-            // TODO: check if another request is necessary
             viewModel.fetchRecentMessages()
         }
     }
@@ -96,25 +88,29 @@ struct MainMessagesView: View {
             } label: {
                 Image(systemName: "plus.message.fill")
                     .resizable()
-                    .frame(width: 48, height: 48)
+                    .frame(width: 36, height: 36)
                     .foregroundColor(.white)
                     .padding(16)
             }
             .background(.blue)
             .cornerRadius(40)
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 32)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 26)
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
             let viewModel = CreateNewMessageViewModel(firebaseManager: viewModel.firebaseManager)
-            CreateNewMessageView(viewModel: viewModel) { user in
+            CreateNewMessageView(viewModel: viewModel) { users in
                 self.shouldNavigateToChatLogView.toggle()
                 guard let currentUser = viewModel.firebaseManager.getCurrentUser() else { return }
-                let chatModel = ChatModel(id: user.id,
-                                          groupName: user.email,
-                                          participants: [user, currentUser],
-                                          participantsNames: [currentUser.email, user.email],
-                                          imageUrl: user.profileImageUrl,
+                let chatId = viewModel.firebaseManager.generateNewChatId()
+                var participants = users
+                participants.append(currentUser)
+                
+                let chatModel = ChatModel(id: chatId,
+                                          groupName: chatId,
+                                          participants: participants,
+                                          participantsNames: participants.map { $0.email },
+                                          imageUrl: currentUser.profileImageUrl,
                                           lastMessage: nil,
                                           timeStamp: Date())
                 self.chatModel = chatModel

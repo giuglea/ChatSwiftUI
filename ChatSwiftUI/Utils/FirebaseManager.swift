@@ -10,6 +10,7 @@ import Firebase
 protocol FirebaseManager {
     func getCurrentFirebaseUser() -> User?
     func getCurrentUser() -> ChatUser?
+    func generateNewChatId() -> String
 
     var storage: Storage { get }
     var firestore: Firestore { get }
@@ -33,11 +34,15 @@ final class FirebaseManagerImplementation: NSObject,
         super.init()
     }
     
+    func generateNewChatId() -> String {
+        firestore.collection(FirebaseConstants.Group.groupId).document().documentID
+    }
+    
     func getCurrentFirebaseUser() -> User? {
-        return auth.currentUser
+        auth.currentUser
     }
     
     func getCurrentUser() -> ChatUser? {
-        return currentUser
+        currentUser
     }
 }
