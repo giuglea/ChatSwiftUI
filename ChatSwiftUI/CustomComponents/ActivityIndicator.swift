@@ -9,26 +9,42 @@ import SwiftUI
 
 struct ActivityIndicator: View {
     
-    @State private var isAnimating: Bool = false
+    @Binding var isAnimating: Bool
+    
+    var color: Gradient = Gradient(colors: [.pink, .purple, .blue])
+    var backgroundColor: Color = .gray.opacity(0.3)
     
     var body: some View {
-        GeometryReader { (geometry: GeometryProxy) in
-            ForEach(0..<5) { index in
-                Group {
-                    Circle()
-                        .frame(width: geometry.size.width / 5, height: geometry.size.height / 5)
-                        .scaleEffect(calcScale(index: index))
-                        .offset(y: calcYOffset(geometry))
-                }.frame(width: geometry.size.width, height: geometry.size.height)
-                    .rotationEffect(!self.isAnimating ? .degrees(0) : .degrees(360))
-                    .animation(Animation
-                        .timingCurve(0.5, 0.15 + Double(index) / 5, 0.25, 1, duration: 1.5)
-                        .repeatForever(autoreverses: false))
+        ZStack {
+            backgroundColor.ignoresSafeArea()
+            VStack {
+                GeometryReader { (geometry: GeometryProxy) in
+                    ForEach(0..<7) { index in
+                        Group {
+                            Circle()
+                                .foregroundColor(.clear)
+                                .background(LinearGradient(gradient: color, startPoint: .leading, endPoint: .trailing))
+                                .frame(width: geometry.size.width / 5, height: geometry.size.height / 5)
+                                .cornerRadius(geometry.size.width / 5)
+                                .scaleEffect(calcScale(index: index))
+                                .offset(y: calcYOffset(geometry))
+                        }
+                        .background(LinearGradient(gradient: color, startPoint: .leading, endPoint: .trailing))
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .rotationEffect(!self.isAnimating ? .degrees(0) : .degrees(360))
+                        .animation(Animation
+                            .timingCurve(0.5, 0.15 + Double(index) / 5, 0.25, 1, duration: 1.5)
+                            .repeatForever(autoreverses: false), value: isAnimating)
+                    }
+                }
+                .frame(width: 50, height: 50)
+                
+                Text("Loading...")
             }
-        }
-        .aspectRatio(1, contentMode: .fit)
-        .onAppear {
-            self.isAnimating = true
+            .aspectRatio(1, contentMode: .fit)
+            .padding(.all, 12)
+            .background(Color.gray.opacity(0.5))
+            .cornerRadius(10)
         }
     }
     
@@ -42,10 +58,10 @@ struct ActivityIndicator: View {
     
 }
 
-struct ActivityIndicator_Previews: PreviewProvider {
-    static var previews: some View {
-        ActivityIndicator()
-            .frame(width: 50, height: 50)
-            .foregroundColor(.pink)
-    }
-}
+//struct ActivityIndicator_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ActivityIndicator()
+//            .frame(width: 50, height: 50)
+//            .foregroundColor(.pink)
+//    }
+//}

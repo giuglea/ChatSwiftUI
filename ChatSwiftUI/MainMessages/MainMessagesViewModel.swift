@@ -5,6 +5,7 @@
 //  Created by Tzy on 26.12.2021.
 //
 
+import Combine
 import Firebase
 import FirebaseFirestoreSwift
 
@@ -12,16 +13,20 @@ final class MainMessagesViewModel: ObservableObject {
     
     @Published var errorMessage = ""
     @Published var chatUser: ChatUser?
-    @Published var isUserCunrentlyLoggedOut = false
-    @Published var recentGroups: [ChatModel] = []
+    
+    @Published private var recentGroups: [ChatModel] = []
+    @Published var displayedGroups: [ChatModel] = []
+    @Published var searchText = ""
     
     let firebaseManager: FirebaseManager
     
     private var firebaseListener: ListenerRegistration?
+    private var subscribers: [AnyCancellable] = []
     
     init(firebaseManager: FirebaseManager) {
         self.firebaseManager = firebaseManager
         fetchRecentMessages()
+        searchChats()
     }
     
     func onSignOut() {
@@ -33,7 +38,11 @@ final class MainMessagesViewModel: ObservableObject {
         fetchRecentMessages()
     }
     
-    func fetchRecentMessages() {
+    func onRefresh() {
+        fetchRecentMessages()
+    }
+    
+    private func fetchRecentMessages() {
         guard let currentUser = firebaseManager.getCurrentFirebaseUser() else {
             return
         }
@@ -62,5 +71,23 @@ final class MainMessagesViewModel: ObservableObject {
                     welf.recentGroups.insert(chatModel, at: 0)
                 }
             }
+    }
+    
+    private func searchChats() {
+        Publishers.CombineLatest($searchText, $recentGroups)
+            .throttle(for: 0.3, scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] searchText, recentGroups in
+                guard let welf = self else {
+                    return
+                }
+                if searchText.isEmpty {
+                    welf.displayedGroups = welf.recentGroups
+                } else {
+                    welf.displayedGroups = welf.recentGroups.filter { group in
+                        group.groupName.contains(welf.searchText)
+                    }
+                }
+            }
+            .store(in: &subscribers)
     }
 }

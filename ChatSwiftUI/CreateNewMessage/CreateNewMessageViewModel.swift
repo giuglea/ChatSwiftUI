@@ -5,13 +5,13 @@
 //  Created by Tzy on 26.12.2021.
 //
 
-import Foundation
+import Combine
+import UIKit
 
 struct SelectableChatUser: Identifiable {
     var id: String? {
         return chatUser.id
     }
-    
     var isSelected: Bool = false
     var chatUser: ChatUser
 }
@@ -21,12 +21,20 @@ final class CreateNewMessageViewModel: ObservableObject {
     @Published var users: [SelectableChatUser] = []
     @Published var errorMessage: String?
     @Published var canCreateChat = false
+    @Published var selectedImage: UIImage?
+    @Published var groupName: String = ""
+    @Published var shouldShowImagePicker = false
+    @Published var shouldShowLoading = false
+    
+    private var chatModel: ChatModel?
     
     let firebaseManager: FirebaseManager
+    private var subscribers: [AnyCancellable] = []
     
     init(firebaseManager: FirebaseManager) {
         self.firebaseManager = firebaseManager
         fetchAllUsers()
+        updateCanCreateChat()
     }
     
     func didSelectUser(with id: String?) {
@@ -35,9 +43,19 @@ final class CreateNewMessageViewModel: ObservableObject {
             return
         }
         users[index].isSelected.toggle()
-        canCreateChat = users.contains(where: { user in
-            user.isSelected
-        })
+    }
+    
+    private func updateCanCreateChat() {
+        Publishers.CombineLatest3($users, $selectedImage, $groupName)
+            .throttle(for: 0.3, scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] users, selectedImage, groupName in
+                self?.canCreateChat = !groupName.isEmpty
+                && selectedImage != nil
+                && users.contains(where: { user in
+                    user.isSelected
+                })
+            }
+            .store(in: &subscribers)
     }
     
     private func fetchAllUsers() {
@@ -64,5 +82,21 @@ final class CreateNewMessageViewModel: ObservableObject {
                     }
                 }
             }
+    }
+    
+    private func persistImageToStorage(image: UIImage?) {
+        guard let image = image else {
+            return
+        }
+
+        firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
+            if let error = error {
+                self?.errorMessage = error.localizedDescription
+            }
+            
+            if let urlString = urlString {
+                self?.shouldShowLoading = false
+            }
+        }
     }
 }

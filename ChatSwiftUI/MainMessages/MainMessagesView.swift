@@ -33,12 +33,20 @@ struct MainMessagesView: View {
             }
         }
         .overlay(newMessageButton, alignment: .bottom)
-        .navigationBarTitleDisplayMode(.large)
-        .navigationTitle("Messages")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Text("Messages")
+                    .font(.title)
+                    .fontWeight(.heavy)
+            }
+        }
+        .searchable(text: $viewModel.searchText)
+        .navigationTitle("")
     }
     
     private var messagesView: some View {
-        List(viewModel.recentGroups) { recentChat in
+        List(viewModel.displayedGroups) { recentChat in
             VStack {
                 Button {
                     self.chatModel = recentChat
@@ -52,7 +60,7 @@ struct MainMessagesView: View {
                             .clipped()
                             .cornerRadius(45)
                             .overlay(RoundedRectangle(cornerRadius: 45).stroke(Color.init(.label), lineWidth: 1))
-                            .shadow(radius: 5)
+                            .shadow(radius: 4)
 
                         VStack(alignment: .leading) {
                             Text(recentChat.groupName)
@@ -76,7 +84,7 @@ struct MainMessagesView: View {
         }
         .listStyle(.plain)
         .refreshable {
-            viewModel.fetchRecentMessages()
+            viewModel.onRefresh()
         }
     }
     

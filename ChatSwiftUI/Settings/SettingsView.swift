@@ -9,8 +9,8 @@ import SDWebImageSwiftUI
 import SwiftUI
 
 struct SettingsView: View {
+    
     @StateObject var viewModel: SettingsViewModel
-    let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
     
     var body: some View {
         VStack {
@@ -22,12 +22,12 @@ struct SettingsView: View {
                     ProgressView()
                 }
                 .scaledToFill()
-                .frame(width: 120, height: 120)
-                .cornerRadius(60)
-                .overlay(RoundedRectangle(cornerRadius: 60)
+                .frame(width: 100, height: 100)
+                .cornerRadius(50)
+                .overlay(RoundedRectangle(cornerRadius: 50)
                     .stroke(Color(.label), lineWidth: 1))
                 .shadow(radius: 3)
-            Text("App version: \(appVersion ?? "")")
+            Text(viewModel.displayVersion)
                 .opacity(0.8)
             Spacer()
             
@@ -40,6 +40,7 @@ struct SettingsView: View {
                 .listRowSeparator(.hidden)
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

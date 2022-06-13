@@ -29,11 +29,12 @@ enum Setting: Int, CaseIterable, Identifiable {
 }
 
 final class SettingsViewModel: ObservableObject {
-    let firebaseManager: FirebaseManager
-    @Published var settings = Setting.allCases
     
+    @Published var settings = Setting.allCases
     @Published var chatUser: ChatUser?
     @Published var shouldSignOut = false
+    
+    let firebaseManager: FirebaseManager
     var onSignOut: (() -> ())?
     
     init(firebaseManager: FirebaseManager) {
@@ -50,5 +51,11 @@ final class SettingsViewModel: ObservableObject {
             chatUser = nil
             onSignOut?()
         }
+    }
+    
+    private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    
+    var displayVersion: String {
+        "App version: \(appVersion ?? "")"
     }
 }

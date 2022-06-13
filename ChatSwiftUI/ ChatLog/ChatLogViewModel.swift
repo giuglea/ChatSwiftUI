@@ -10,6 +10,7 @@ import FirebaseFirestoreSwift
 import UIKit
 
 final class ChatLogViewModel: ObservableObject {
+    
     @Published var chatText: String = ""
     @Published var chatMessages: [ChatMessage] = []
     @Published var count = 0
@@ -40,7 +41,6 @@ final class ChatLogViewModel: ObservableObject {
         }
         firestoreListener?.remove()
         chatMessages.removeAll()
-        
         
         // TODO: Chnage this into an unique identifier: chatModelId
         firestoreListener = firebaseManager.firestore
@@ -128,25 +128,18 @@ final class ChatLogViewModel: ObservableObject {
     }
     
     private func persistImageToStorage(image: UIImage?) {
-        guard let uid = firebaseManager.getCurrentFirebaseUser()?.uid else {
-            return
-        }
-        let ref = firebaseManager.storage.reference(withPath: uid)
-        guard let imageData = image?.jpegData(compressionQuality: 0.5) else { return }
-        ref.putData(imageData, metadata: nil) { metadata, error in
+        firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
             if let error = error {
-                self.errorMessage = "Failed to save image \(error)"
+                self?.errorMessage = "Failed to save image \(error)"
                 return
             }
-            ref.downloadURL { url, error in
-                if let error = error {
-                    self.errorMessage = "Failed to retreive download URL\(error)"
-                    return
-                }
-                guard let url = url else { return }
-                // TODO: Send message inside a que and upload the message
-                // TODO: Add loading indicator
+            
+            guard let url = urlString else {
+                return
             }
+            
+            // TODO: Send message inside a que and upload the message
+            // TODO: Add loading indicator
         }
     }
 }

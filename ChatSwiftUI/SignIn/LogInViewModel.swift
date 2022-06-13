@@ -57,38 +57,25 @@ final class LogInViewModel: ObservableObject {
     }
     
     private func persistImageToStorage() {
-        guard let uid = firebaseManager.getCurrentFirebaseUser()?.uid else {
-            return
-        }
-        let ref = firebaseManager.storage.reference(withPath: uid)
-        guard let imageData = image?.jpegData(compressionQuality: 0.5) else {
-            return
-        }
-        ref.putData(imageData, metadata: nil) { [weak self] metadata, error in
-            guard let welf = self else {
-                return
-            }
+        firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
             if let error = error {
-                welf.loginStatusMeesage = "Failed to save image \(error)"
+                self?.loginStatusMeesage = "Failed to save image \(error)"
                 return
             }
-            ref.downloadURL { url, error in
-                if let error = error {
-                    welf.loginStatusMeesage = "Failed to retreive download URL\(error)"
-                    return
-                }
-                welf.loginStatusMeesage = "Succes! \(url?.absoluteString ?? "")"
-                guard let url = url else { return }
-                welf.storeUserInformation(imageProfileUrl: url)
+            
+            guard let url = urlString else {
+                return
             }
+            
+            self?.storeUserInformation(imageProfileUrl: url)
         }
     }
     
-    private func storeUserInformation(imageProfileUrl: URL) {
+    private func storeUserInformation(imageProfileUrl: String) {
         guard let uid = firebaseManager.getCurrentFirebaseUser()?.uid else { return }
         let chatUser = ChatUser(id: uid,
                                 email: email,
-                                profileImageUrl: imageProfileUrl.absoluteString)
+                                profileImageUrl: imageProfileUrl)
         try? firebaseManager.firestore.collection(FirebaseConstants.Collection.users)
             .document(uid)
             .setData(from: chatUser) { [weak self] error in
@@ -101,6 +88,9 @@ final class LogInViewModel: ObservableObject {
                     welf.didCompleteLogIn()
                 }
             }
+        
         // TODO: Add loading indicator
     }
+    
+    
 }

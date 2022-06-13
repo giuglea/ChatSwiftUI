@@ -9,15 +9,19 @@ import Combine
 import SwiftUI
 
 final class MainViewModel: ObservableObject {
+    
+    // MARK: ViewModels
     @Published var mainMessagesViewModel: MainMessagesViewModel
     @Published var draftMasterViewModel: DraftMasterViewModel
     @Published var settingsViewModel: SettingsViewModel
     
+    // MARK: Variables
     @Published var chatUser: ChatUser?
-    @Published var isUserCunrentlyLoggedOut = false
-    
+    @Published var isUserCurrentlyLoggedOut = false
     @Published var errorMessage: String? = nil
+    @Published var isLoading = false
     
+    // MARK: Dependencies
     let fireBaseManager = FirebaseManagerImplementation()
     
     private var subscribers: [AnyCancellable] = []
@@ -44,7 +48,7 @@ final class MainViewModel: ObservableObject {
     
     func fetchCurrentUser() {
         guard let uid = fireBaseManager.auth.currentUser?.uid else {
-            isUserCunrentlyLoggedOut = true
+            isUserCurrentlyLoggedOut = true
             return
         }
         fireBaseManager.firestore
@@ -68,19 +72,20 @@ final class MainViewModel: ObservableObject {
     }
     
     func handleSingIn() {
-        isUserCunrentlyLoggedOut = false
+        isUserCurrentlyLoggedOut = false
         mainMessagesViewModel.onSignIn()
     }
     
     func handleSingOut() {
         mainMessagesViewModel.onSignOut()
-        isUserCunrentlyLoggedOut = true
+        isUserCurrentlyLoggedOut = true
         try? fireBaseManager.auth.signOut()
     }
     
 }
 
 struct MainView: View {
+    
     @StateObject var mainViewModel = MainViewModel()
     
     var body: some View {
@@ -91,12 +96,12 @@ struct MainView: View {
             .tabItem {
                 Label("Chats", systemImage: "message")
             }
-//            NavigationView {
-//                DraftMasterView(viewModel: draftMasterViewModel)
-//            }
-//            .tabItem {
-//                Label("Draft", systemImage: "square.and.pencil")
-//            }
+            NavigationView {
+                DraftMasterView(viewModel: mainViewModel.draftMasterViewModel)
+            }
+            .tabItem {
+                Label("Draft", systemImage: "square.and.pencil")
+            }
             NavigationView {
                 SettingsView(viewModel: mainViewModel.settingsViewModel)
             }
@@ -104,7 +109,8 @@ struct MainView: View {
                 Label("Settings", systemImage: "gear")
             }
         }
-        .fullScreenCover(isPresented: $mainViewModel.isUserCunrentlyLoggedOut) {
+        .navigationViewStyle(.stack)
+        .fullScreenCover(isPresented: $mainViewModel.isUserCurrentlyLoggedOut) {
             let logInViewModel = LogInViewModel(firebaseManager: mainViewModel.fireBaseManager) {
                 self.mainViewModel.fetchCurrentUser()
             }

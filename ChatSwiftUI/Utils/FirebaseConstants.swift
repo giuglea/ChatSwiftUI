@@ -14,6 +14,7 @@ enum FirebaseConstants {
     
     enum Group {
         static let groupId = "groupId"
+        static let groupName = "groupName"
         static let participantsNames = "participantsNames"
     }
     
@@ -21,5 +22,9 @@ enum FirebaseConstants {
         static let messages = "messages"
         static let users = "users"
         static let recentMessages = "recentMessages"
+    }
+    
+    enum Compression {
+        static let imageCompression = 0.4
     }
 }

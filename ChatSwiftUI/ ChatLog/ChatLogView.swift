@@ -13,13 +13,14 @@ import FirebaseFirestoreSwift
 struct ChatLogView: View {
     
     static let scrollToString = "Empty"
+    
     @State var nothing: Bool = false
     @State var pickedImage: UIImage?
     @State var shouldShowImagePicker: Bool = false
     
-    @Environment(\.presentationMode) var presentationMode
-    
     @ObservedObject var viewModel: ChatLogViewModel
+    
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         VStack {
@@ -31,11 +32,7 @@ struct ChatLogView: View {
         .onDisappear {
             viewModel.firestoreListener?.remove()
         }
-        .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                CustomBackButton()
-            }
             ToolbarItem(placement: .navigationBarLeading) {
                 CustomNavigationView(url: viewModel.getProfileImageString(),
                                      title: viewModel.getName(),
@@ -68,10 +65,9 @@ struct ChatLogView: View {
                 }
             }
         }
-        .background(Color(.quaternaryLabel))
+        .background(Color(.quaternaryLabel).ignoresSafeArea(.all, edges: .horizontal))
         .safeAreaInset(edge: .bottom) {
             chatBottomBar
-                .background(Color(.systemBackground).ignoresSafeArea())
         }
     }
     
@@ -110,7 +106,7 @@ struct ChatLogView: View {
     }
 }
 
-enum MessageType {
+fileprivate enum MessageType {
     case to
     case from
     
@@ -119,7 +115,7 @@ enum MessageType {
     }
 }
 
-struct MessageBubbleView: View {
+fileprivate struct MessageBubbleView: View {
     let message: ChatMessage
     let type: MessageType
     
