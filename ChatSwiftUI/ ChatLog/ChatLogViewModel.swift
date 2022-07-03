@@ -15,6 +15,8 @@ final class ChatLogViewModel: ObservableObject {
     @Published var chatMessages: [ChatMessage] = []
     @Published var count = 0
     @Published var errorMessage: String?
+    @Published var selectedImage: UIImage?
+    @Published var isLoading = false
     
     var chatModel: ChatModel
     let firebaseManager: FirebaseManager
@@ -42,7 +44,6 @@ final class ChatLogViewModel: ObservableObject {
         firestoreListener?.remove()
         chatMessages.removeAll()
         
-        // TODO: Chnage this into an unique identifier: chatModelId
         firestoreListener = firebaseManager.firestore
             .collection(FirebaseConstants.Group.groupId)
             .document(chatModelId)
@@ -68,7 +69,19 @@ final class ChatLogViewModel: ObservableObject {
             }
     }
     
-    func handleSend() {
+    func didTapSend() {
+        if let selectedImage = selectedImage {
+            isLoading = true
+            persistImageToStorage(selectedImage: selectedImage) { [weak self] urlString in
+                self?.handleSend(urlString: urlString)
+                self?.isLoading = false
+            }
+        } else {
+            handleSend()
+        }
+    }
+    
+    private func handleSend(urlString: String = "") {
         guard let chatModelId = chatModel.id,
               let currentUser = firebaseManager.getCurrentUser() else {
             return
@@ -83,7 +96,7 @@ final class ChatLogViewModel: ObservableObject {
         let chatMessage = ChatMessage(fromId: currentUser.id ?? "",
                                       fromName: currentUser.email,
                                       text: chatText,
-                                      imageUrl: "",
+                                      imageUrl: urlString,
                                       timeStamp: Date())
         
         try? document.setData(from: chatMessage) { [weak self] error in
@@ -98,11 +111,11 @@ final class ChatLogViewModel: ObservableObject {
                 welf.count += 1
             }
             
-            welf.persistRecentMessage()
+            welf.persistRecentMessage(urlString: urlString)
         }
     }
     
-    private func persistRecentMessage() {
+    private func persistRecentMessage(urlString: String) {
         guard let id = chatModel.id,
               let currentUser = firebaseManager.getCurrentUser() else {
             return
@@ -115,7 +128,7 @@ final class ChatLogViewModel: ObservableObject {
         let chatMessage = ChatMessage(fromId: currentUser.id ?? "",
                                       fromName: currentUser.email,
                                       text: chatText,
-                                      imageUrl: "",
+                                      imageUrl: urlString,
                                       timeStamp: Date())
         chatModel.lastMessage = chatMessage
         
@@ -127,19 +140,18 @@ final class ChatLogViewModel: ObservableObject {
         chatText = ""
     }
     
-    private func persistImageToStorage(image: UIImage?) {
-        firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
+    private func persistImageToStorage(selectedImage: UIImage, completion: @escaping (String) -> ()) {
+        firebaseManager.persistImageToStorage(image: selectedImage) { [weak self] urlString, error in
             if let error = error {
                 self?.errorMessage = "Failed to save image \(error)"
                 return
             }
-            
-            guard let url = urlString else {
+            guard let urlString = urlString else {
                 return
             }
+            completion(urlString)
             
             // TODO: Send message inside a que and upload the message
-            // TODO: Add loading indicator
         }
     }
 }

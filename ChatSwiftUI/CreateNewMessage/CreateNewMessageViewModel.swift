@@ -24,7 +24,7 @@ final class CreateNewMessageViewModel: ObservableObject {
     @Published var selectedImage: UIImage?
     @Published var groupName: String = ""
     @Published var shouldShowImagePicker = false
-    @Published var shouldShowLoading = false
+    @Published var isLoading = false
     
     private var chatModel: ChatModel?
     
@@ -35,6 +35,46 @@ final class CreateNewMessageViewModel: ObservableObject {
         self.firebaseManager = firebaseManager
         fetchAllUsers()
         updateCanCreateChat()
+    }
+    
+    func didTapCreateChat(completion: @escaping (ChatModel) -> ()) {
+        guard let image = selectedImage else {
+            return
+        }
+        isLoading = true
+        firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
+            if let error = error {
+                self?.errorMessage = error.localizedDescription
+            }
+            guard let welf = self else {
+                return
+            }
+            if let urlString = urlString,
+               let model = welf.createGroupModel(urlString: urlString) {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                    completion(model)
+                }
+            }
+            welf.isLoading = false
+        }
+    }
+    
+    private func createGroupModel(urlString: String) -> ChatModel? {
+        let id = firebaseManager.generateNewChatId()
+        var selectedParticipants = users
+            .filter { $0.isSelected }
+            .map { $0.chatUser }
+        guard let currentUser = firebaseManager.getCurrentUser() else {
+            return nil
+        }
+        selectedParticipants.append(currentUser)
+        return ChatModel(id: id,
+                         groupName: groupName,
+                         participants: selectedParticipants,
+                         participantsNames: selectedParticipants.map { $0.email },
+                         imageUrl: urlString,
+                         lastMessage: nil,
+                         timeStamp: Date())
     }
     
     func didSelectUser(with id: String?) {
@@ -82,21 +122,5 @@ final class CreateNewMessageViewModel: ObservableObject {
                     }
                 }
             }
-    }
-    
-    private func persistImageToStorage(image: UIImage?) {
-        guard let image = image else {
-            return
-        }
-
-        firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
-            if let error = error {
-                self?.errorMessage = error.localizedDescription
-            }
-            
-            if let urlString = urlString {
-                self?.shouldShowLoading = false
-            }
-        }
     }
 }

@@ -14,6 +14,7 @@ protocol FirebaseManager {
     func generateNewChatId() -> String
     func persistImageToStorage(image: UIImage?,
                                completion: @escaping (String?, Error?) -> ())
+    func sendResetPassword()
 
     var storage: Storage { get }
     var firestore: Firestore { get }
@@ -76,5 +77,12 @@ final class FirebaseManagerImplementation: NSObject,
                 completion(url.absoluteString, nil)
             }
         }
+    }
+    
+    func sendResetPassword() {
+        guard let email = currentUser?.email else {
+            return
+        }
+        auth.sendPasswordReset(withEmail: email)
     }
 }

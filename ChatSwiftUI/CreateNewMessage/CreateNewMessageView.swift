@@ -12,36 +12,40 @@ struct CreateNewMessageView: View {
     
     @ObservedObject var viewModel: CreateNewMessageViewModel
     
-    let didSelectNewUser: ([ChatUser]) -> ()
+    let didSelectNewUser: (ChatModel) -> ()
     
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        NavigationView {
-            VStack {
-                List(viewModel.users) { user in
-                    ChatUserCell(user: user) {
-                        viewModel.didSelectUser(with: user.id)
-                    }
-                }
-                .listStyle(.plain)
-                .navigationTitle("New Group")
-                .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarLeading) {
-                        Button {
-                            presentationMode.wrappedValue.dismiss()
-                        } label: {
-                            Text("Cancel")
+        ZStack {
+            NavigationView {
+                VStack {
+                    List(viewModel.users) { user in
+                        ChatUserCell(user: user) {
+                            viewModel.didSelectUser(with: user.id)
                         }
-                        
                     }
+                    .listStyle(.plain)
+                    .navigationTitle("New Group")
+                    .toolbar {
+                        ToolbarItemGroup(placement: .navigationBarLeading) {
+                            Button {
+                                presentationMode.wrappedValue.dismiss()
+                            } label: {
+                                Text("Cancel")
+                            }
+                            
+                        }
+                    }
+                    didSelectUsersButton
                 }
-                didSelectUsersButton
+            }
+            if viewModel.isLoading {
+                ActivityIndicator(isAnimating: $viewModel.isLoading)
+                    .ignoresSafeArea()
             }
         }
     }
-    
-
     
     private var didSelectUsersButton: some View {
         VStack {
@@ -70,8 +74,10 @@ struct CreateNewMessageView: View {
             .padding(.bottom)
 
             Button {
-                presentationMode.wrappedValue.dismiss()
-                didSelectNewUser(viewModel.users.map { $0.chatUser })
+                viewModel.didTapCreateChat { model in
+                    didSelectNewUser(model)
+                    presentationMode.wrappedValue.dismiss()
+                }
             } label: {
                 Image(systemName: "person.fill.badge.plus")
                     .resizable()

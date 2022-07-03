@@ -107,21 +107,9 @@ struct MainMessagesView: View {
         .padding(.bottom, 26)
         .fullScreenCover(isPresented: $shouldShowNewMessageScreen) {
             let viewModel = CreateNewMessageViewModel(firebaseManager: viewModel.firebaseManager)
-            CreateNewMessageView(viewModel: viewModel) { users in
-                self.shouldNavigateToChatLogView.toggle()
-                guard let currentUser = viewModel.firebaseManager.getCurrentUser() else { return }
-                let chatId = viewModel.firebaseManager.generateNewChatId()
-                var participants = users
-                participants.append(currentUser)
-                
-                let chatModel = ChatModel(id: chatId,
-                                          groupName: chatId,
-                                          participants: participants,
-                                          participantsNames: participants.map { $0.email },
-                                          imageUrl: currentUser.profileImageUrl,
-                                          lastMessage: nil,
-                                          timeStamp: Date())
+            CreateNewMessageView(viewModel: viewModel) { chatModel in
                 self.chatModel = chatModel
+                self.shouldNavigateToChatLogView.toggle()
             }
         }
     }

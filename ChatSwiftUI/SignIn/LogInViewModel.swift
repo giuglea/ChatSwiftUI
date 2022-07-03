@@ -17,6 +17,7 @@ final class LogInViewModel: ObservableObject {
     @Published var shouldShowImagePicker = false
     @Published var image: UIImage?
     @Published var loginStatusMeesage = ""
+    @Published var isLoading = false
     
     init(firebaseManager: FirebaseManager, didCompleteLogIn: @escaping () -> ()) {
         self.firebaseManager = firebaseManager
@@ -32,7 +33,6 @@ final class LogInViewModel: ObservableObject {
                 welf.loginStatusMeesage = "Failed to log in user: \(error)"
                 return
             }
-            welf.loginStatusMeesage = "Success log in: \(result?.user.uid ?? "")"
             welf.didCompleteLogIn()
         }
     }
@@ -42,16 +42,17 @@ final class LogInViewModel: ObservableObject {
             self.loginStatusMeesage = "You must select an avatar image"
             return
         }
-        
+        isLoading = true
         firebaseManager.auth.createUser(withEmail: email, password: password) { [weak self] result, error in
             guard let welf = self else {
                 return
             }
             if let error = error {
                 welf.loginStatusMeesage = "Failed to create user: \(error)"
+                welf.isLoading = false
                 return
             }
-            welf.loginStatusMeesage = "Success create: \(result?.user.uid ?? "")"
+            welf.loginStatusMeesage = "Success in creating User"
             welf.persistImageToStorage()
         }
     }
@@ -60,6 +61,7 @@ final class LogInViewModel: ObservableObject {
         firebaseManager.persistImageToStorage(image: image) { [weak self] urlString, error in
             if let error = error {
                 self?.loginStatusMeesage = "Failed to save image \(error)"
+                self?.isLoading = false
                 return
             }
             
@@ -82,14 +84,16 @@ final class LogInViewModel: ObservableObject {
                 guard let welf = self else {
                     return
                 }
+                welf.isLoading = false
                 if let error = error {
                     print(error)
                     welf.loginStatusMeesage = error.localizedDescription
+                    return
+                }
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
                     welf.didCompleteLogIn()
                 }
             }
-        
-        // TODO: Add loading indicator
     }
     
     

@@ -44,13 +44,16 @@ final class SettingsViewModel: ObservableObject {
     func didPressSetting(_ setting: Setting) {
         switch setting {
         case .language:
-            break
+            changeLanguage()
         case .changePassword:
-            break
+            firebaseManager.sendResetPassword()
         case .logout:
             chatUser = nil
             onSignOut?()
         }
+    }
+    
+    private func changeLanguage() {
     }
     
     private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String

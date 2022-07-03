@@ -15,7 +15,6 @@ struct ChatLogView: View {
     static let scrollToString = "Empty"
     
     @State var nothing: Bool = false
-    @State var pickedImage: UIImage?
     @State var shouldShowImagePicker: Bool = false
     
     @ObservedObject var viewModel: ChatLogViewModel
@@ -23,8 +22,35 @@ struct ChatLogView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack {
-            messagesView
+        ZStack {
+            VStack {
+                ScrollView {
+                    ScrollViewReader { scrollViewProxy in
+                        VStack {
+                            ForEach(viewModel.chatMessages) { message in
+                                let type = message.fromId == viewModel.firebaseManager.auth.currentUser?.uid
+                                MessageBubbleView(message: message, type: MessageType.getMessageType(from: type))
+                            }
+                            
+                            HStack { Spacer() }
+                            .id(Self.scrollToString)
+                        }
+                        .onReceive(viewModel.$count) { _ in
+                            withAnimation(.easeOut(duration: 0.5)) {
+                                scrollViewProxy.scrollTo(Self.scrollToString, anchor: .bottom)
+                            }
+                        }
+                    }
+                }
+            }
+            if viewModel.isLoading {
+                ActivityIndicator(isAnimating: $viewModel.isLoading)
+                    .ignoresSafeArea()
+            }
+        }
+        .background(Color(.quaternaryLabel).ignoresSafeArea(.all, edges: .horizontal))
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            chatBottomBar
         }
         .onAppear {
             viewModel.fetchMessages()
@@ -37,56 +63,47 @@ struct ChatLogView: View {
                 CustomNavigationView(url: viewModel.getProfileImageString(),
                                      title: viewModel.getName(),
                                      shouldToggleAction: $nothing)
+               
             }
         }
         .fullScreenCover(isPresented: $shouldShowImagePicker, onDismiss: nil) {
-            ImagePicker(image: $pickedImage)
+            ImagePicker(image: $viewModel.selectedImage)
         }
     }
-    
-    private var messagesView: some View {
-        VStack {
-            ScrollView {
-                ScrollViewReader { scrollViewProxy in
-                    VStack {
-                        ForEach(viewModel.chatMessages) { message in
-                            let type = message.fromId == viewModel.firebaseManager.auth.currentUser?.uid
-                            MessageBubbleView(message: message, type: MessageType.getMessageType(from: type))
-                        }
-                        
-                        HStack{ Spacer() }
-                        .id(Self.scrollToString)
-                    }
-                    .onReceive(viewModel.$count) { _ in
-                        withAnimation(.easeOut(duration: 0.5)) {
-                            scrollViewProxy.scrollTo(Self.scrollToString, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-        }
-        .background(Color(.quaternaryLabel).ignoresSafeArea(.all, edges: .horizontal))
-        .safeAreaInset(edge: .bottom) {
-            chatBottomBar
-        }
-    }
-    
+
     private var chatBottomBar: some View {
         HStack {
             Button {
-                shouldShowImagePicker.toggle()
+                if viewModel.selectedImage != nil {
+                    viewModel.selectedImage = nil
+                } else {
+                    shouldShowImagePicker.toggle()
+                }
             } label: {
-                Image(systemName: "photo.on.rectangle")
-                    .font(.system(size: 24))
-                    .foregroundColor(Color(.label))
-                    .frame(width: 24, height: 24)
+                VStack {
+                    if let image = viewModel.selectedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .font(.system(size: 24))
+                            .foregroundColor(Color(.label))
+                            .frame(width: 24, height: 24)
+                            .border(.foreground, width: 0.5)
+                            .cornerRadius(24)
+                    } else {
+                        Image(systemName: "photo.on.rectangle")
+                            .font(.system(size: 24))
+                            .foregroundColor(Color(.label))
+                            .frame(width: 24, height: 24)
+                    }
+                }
             }
             
             TextEditor(text: $viewModel.chatText)
                 .frame(minHeight: 24, idealHeight: 24, maxHeight: 48)
-
+                .cornerRadius(8)
+            
             Button {
-                viewModel.handleSend()
+                viewModel.didTapSend()
             } label: {
                 Text("Send")
                     .foregroundColor(.white)
@@ -103,6 +120,7 @@ struct ChatLogView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
+        .background(Material.bar)
     }
 }
 
@@ -133,7 +151,7 @@ fileprivate struct MessageBubbleView: View {
     }
     
     private var fromView: some View {
-        VStack(alignment: .trailing, spacing: 8) {
+        VStack(alignment: .trailing, spacing: 4) {
             HStack {
                 Spacer()
                 VStack(spacing: 8) {
@@ -148,13 +166,17 @@ fileprivate struct MessageBubbleView: View {
                 .padding(.leading, 30)
             }
             if !(message.imageUrl?.isEmpty ?? true) {
-                imageView
+                Button {
+                    print("here::")
+                } label: {
+                    imageView
+                }
             }
         }
     }
     
     private var toView: some View {
-        VStack(alignment: .trailing, spacing: 8) {
+        VStack(alignment: .trailing, spacing: 4) {
             HStack {
                 VStack(spacing: 8) {
                     Text(message.fromName)
@@ -170,7 +192,11 @@ fileprivate struct MessageBubbleView: View {
                 Spacer()
             }
             if !(message.imageUrl?.isEmpty ?? true) {
-                imageView
+                Button {
+                    print("here::")
+                } label: {
+                    imageView
+                }
             }
         }
     }

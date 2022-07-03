@@ -7,6 +7,7 @@
 
 import Combine
 import SwiftUI
+import UIKit
 
 final class MainViewModel: ObservableObject {
     
@@ -19,7 +20,6 @@ final class MainViewModel: ObservableObject {
     @Published var chatUser: ChatUser?
     @Published var isUserCurrentlyLoggedOut = false
     @Published var errorMessage: String? = nil
-    @Published var isLoading = false
     
     // MARK: Dependencies
     let fireBaseManager = FirebaseManagerImplementation()
@@ -34,6 +34,7 @@ final class MainViewModel: ObservableObject {
         settingsViewModel.onSignOut = handleSingOut
         fetchCurrentUser()
         observeChatUser()
+        UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
     
     private func observeChatUser() {

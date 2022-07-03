@@ -60,7 +60,6 @@ struct DraftMasterView: View {
                 }
                 .frame(height: 60)
                 
-                Spacer()
                 HStack {
                     TextEditor(text: $viewModel.message)
                         .cornerRadius(10)

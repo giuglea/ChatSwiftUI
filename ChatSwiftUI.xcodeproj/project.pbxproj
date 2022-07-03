@@ -14,6 +14,7 @@
 		500A95D427790A3400E6DA84 /* MainMessagesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500A95D327790A3400E6DA84 /* MainMessagesViewModel.swift */; };
 		50133D4727440FE20043AEF1 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50133D4627440FE20043AEF1 /* ImagePicker.swift */; };
 		50133D4A27445CE10043AEF1 /* MainMessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50133D4927445CE10043AEF1 /* MainMessagesView.swift */; };
+		501D95CA286F9CE200A39A65 /* ActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = 501D95C9286F9CE200A39A65 /* ActivityIndicatorView */; };
 		501F63D02751986E00A181EE /* CreateNewMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501F63CF2751986E00A181EE /* CreateNewMessageView.swift */; };
 		502104BA2743039C002ABE68 /* ChatSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502104B92743039C002ABE68 /* ChatSwiftUIApp.swift */; };
 		502104BC2743039C002ABE68 /* LogInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502104BB2743039C002ABE68 /* LogInView.swift */; };
@@ -84,6 +85,7 @@
 				5051D1A32777C2BC00A6ACFB /* FirebaseFirestoreSwift-Beta in Frameworks */,
 				5051D19F2777C2BC00A6ACFB /* FirebaseAuth in Frameworks */,
 				5051D1A52777C2BC00A6ACFB /* FirebaseStorage in Frameworks */,
+				501D95CA286F9CE200A39A65 /* ActivityIndicatorView in Frameworks */,
 				5051D1A12777C2BC00A6ACFB /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -128,7 +130,6 @@
 		502104B82743039C002ABE68 /* ChatSwiftUI */ = {
 			isa = PBXGroup;
 			children = (
-				50F86DDB2855287C00129E95 /* GroupInfo */,
 				505A295C275AA7240032036C /* ChatSwiftUI.entitlements */,
 				502104B92743039C002ABE68 /* ChatSwiftUIApp.swift */,
 				50327323284CD3D1004BB314 /* MainTabBar.swift */,
@@ -215,13 +216,6 @@
 			path = " ChatLog";
 			sourceTree = "<group>";
 		};
-		50F86DDB2855287C00129E95 /* GroupInfo */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = GroupInfo;
-			sourceTree = "<group>";
-		};
 		EC00BE4C28036B470044D786 /* DraftMaster */ = {
 			isa = PBXGroup;
 			children = (
@@ -253,6 +247,7 @@
 				5051D1A02777C2BC00A6ACFB /* FirebaseFirestore */,
 				5051D1A22777C2BC00A6ACFB /* FirebaseFirestoreSwift-Beta */,
 				5051D1A42777C2BC00A6ACFB /* FirebaseStorage */,
+				501D95C9286F9CE200A39A65 /* ActivityIndicatorView */,
 			);
 			productName = ChatSwiftUI;
 			productReference = 502104B62743039C002ABE68 /* ChatSwiftUI.app */;
@@ -285,6 +280,7 @@
 			packageReferences = (
 				5030F5E62745917700BEF960 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				5051D19D2777C2BC00A6ACFB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				501D95C8286F9CE200A39A65 /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */,
 			);
 			productRefGroup = 502104B72743039C002ABE68 /* Products */;
 			projectDirPath = "";
@@ -554,6 +550,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		501D95C8286F9CE200A39A65 /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/ActivityIndicatorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		5030F5E62745917700BEF960 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
@@ -573,6 +577,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		501D95C9286F9CE200A39A65 /* ActivityIndicatorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 501D95C8286F9CE200A39A65 /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */;
+			productName = ActivityIndicatorView;
+		};
 		5030F5E72745917700BEF960 /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5030F5E62745917700BEF960 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
