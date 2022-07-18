@@ -28,7 +28,7 @@ struct ChatLogView: View {
                     ScrollViewReader { scrollViewProxy in
                         VStack {
                             ForEach(viewModel.chatMessages) { message in
-                                let type = message.fromId == viewModel.firebaseManager.auth.currentUser?.uid
+                                let type = message.fromId == viewModel.firebaseManager.getCurrentFirebaseUserId()
                                 MessageBubbleView(message: message, type: MessageType.getMessageType(from: type))
                             }
                             
@@ -66,7 +66,7 @@ struct ChatLogView: View {
                
             }
         }
-        .fullScreenCover(isPresented: $shouldShowImagePicker, onDismiss: nil) {
+        .sheet(isPresented: $shouldShowImagePicker, onDismiss: nil) {
             ImagePicker(image: $viewModel.selectedImage)
         }
     }

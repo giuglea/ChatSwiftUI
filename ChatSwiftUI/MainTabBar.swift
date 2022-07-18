@@ -34,7 +34,6 @@ final class MainViewModel: ObservableObject {
         settingsViewModel.onSignOut = handleSingOut
         fetchCurrentUser()
         observeChatUser()
-        UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
     
     private func observeChatUser() {

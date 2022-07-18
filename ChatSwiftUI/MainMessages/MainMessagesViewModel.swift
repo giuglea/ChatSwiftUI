@@ -43,13 +43,12 @@ final class MainMessagesViewModel: ObservableObject {
     }
     
     private func fetchRecentMessages() {
-        guard let currentUser = firebaseManager.getCurrentFirebaseUser() else {
+        guard let currentUser = firebaseManager.getCurrentFirebaseUser(),
+              let email = currentUser.email else {
             return
         }
-
-        firebaseManager.firestore
-            .collection(FirebaseConstants.Collection.recentMessages)
-            .whereField(FirebaseConstants.Group.participantsNames, arrayContains: currentUser.email ?? "")
+        
+        firebaseManager.fetchRecentMessages(for: email)
             .addSnapshotListener { [weak self] snapshot, error in
                 guard let welf = self else {
                     return

@@ -9,6 +9,11 @@ import SwiftUI
 
 struct LogInView: View {
     @ObservedObject var viewModel: LogInViewModel
+    private enum Field: Int, CaseIterable {
+        case username, password
+    }
+    
+    @FocusState private var focusedField: Field?
     
     var body: some View {
         ZStack {
@@ -50,9 +55,11 @@ struct LogInView: View {
                         Group {
                             TextField("Email", text: $viewModel.email)
                                 .keyboardType(.emailAddress)
+                                .focused($focusedField, equals: .username)
                             
                             SecureField("Password", text: $viewModel.password)
                                 .textInputAutocapitalization(.never)
+                                .focused($focusedField, equals: .password)
                         }
                         .textInputAutocapitalization(.never)
                         .padding(8)
@@ -90,6 +97,9 @@ struct LogInView: View {
             if viewModel.isLoading {
                 ActivityIndicator(isAnimating: $viewModel.isLoading)
                     .ignoresSafeArea()
+                    .onAppear {
+                        focusedField = nil
+                    }
             }
         }
     }
@@ -105,7 +115,8 @@ struct LogInView: View {
 
 //struct ContentView_Previews2: PreviewProvider {
 //    static var previews: some View {
-//        LogInView {
-//        }
+//        LogInView(viewModel: LogInViewModel(firebaseManager: <#T##FirebaseManager#>, didCompleteLogIn: { 
+//            <#code#>
+//        }))
 //    }
 //}

@@ -25,7 +25,7 @@ final class LogInViewModel: ObservableObject {
     }
     
     func loginUser() {
-        firebaseManager.auth.signIn(withEmail: email, password: password) { [weak self] result, error in
+        firebaseManager.loginUser(withEmail: email, password: password) { [weak self] error in
             guard let welf = self else {
                 return
             }
@@ -43,7 +43,7 @@ final class LogInViewModel: ObservableObject {
             return
         }
         isLoading = true
-        firebaseManager.auth.createUser(withEmail: email, password: password) { [weak self] result, error in
+        firebaseManager.createNewAccount(withEmail: email, password: password) { [weak self] error in
             guard let welf = self else {
                 return
             }

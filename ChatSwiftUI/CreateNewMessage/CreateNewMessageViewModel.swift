@@ -100,8 +100,7 @@ final class CreateNewMessageViewModel: ObservableObject {
     
     private func fetchAllUsers() {
         let currentUserId = firebaseManager.getCurrentUser()?.id
-        firebaseManager.firestore
-            .collection(FirebaseConstants.Collection.users)
+        firebaseManager.fetchAllUsers()
             .getDocuments { [weak self] documentsSnapshot, error in
                 guard let welf = self else {
                     return

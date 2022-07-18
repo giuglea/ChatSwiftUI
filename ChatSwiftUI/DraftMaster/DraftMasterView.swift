@@ -9,8 +9,8 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct DraftMasterView: View {
-    
     @StateObject var viewModel: DraftMasterViewModel
+    @FocusState private var keyboardDismiss: Bool
     
     @State private var copied = false {
          didSet {
@@ -52,8 +52,6 @@ struct DraftMasterView: View {
                                 }
                                 .padding(.horizontal)
                             }
-                            
-                            
                             Divider()
                         }
                     }
@@ -66,10 +64,12 @@ struct DraftMasterView: View {
                         .overlay(RoundedRectangle(cornerRadius: 10)
                             .stroke(Color(.label), lineWidth: 1))
                         .frame(minHeight: 24, idealHeight: 24, maxHeight: 48)
+                        .focused($keyboardDismiss)
                     
                     Button {
                         withAnimation {
                             copied = true
+                            keyboardDismiss.toggle()
                         }
                         UIPasteboard.general.string = viewModel.message
                     } label: {

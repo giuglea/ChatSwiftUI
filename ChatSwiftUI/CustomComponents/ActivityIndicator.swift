@@ -15,7 +15,6 @@ struct ActivityIndicator: View {
     
     var body: some View {
         ZStack {
-            backgroundColor.ignoresSafeArea()
             VStack {
                 ActivityIndicatorView(isVisible: $isAnimating, type: .rotatingDots(count: 5))
                     .foregroundColor(.purple)
@@ -24,15 +23,20 @@ struct ActivityIndicator: View {
             }
             .aspectRatio(1, contentMode: .fit)
             .padding(.all, 12)
-            .background(Color.purple.opacity(0.1))
+            .background(Color.purple.opacity(0.3))
+            .background(Material.ultraThick)
             .cornerRadius(10)
         }
+        .background(Material.ultraThick)
+        .ignoresSafeArea()
     }
 }
 
+#if DEBUG
 struct ActivityIndicator_Previews: PreviewProvider {
     @State static var animate = true
     static var previews: some View {
         ActivityIndicator(isAnimating: $animate)
     }
 }
+#endif
